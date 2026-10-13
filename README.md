@@ -1,134 +1,227 @@
-# 🌾 ખેડૂત & વેપારી હિસાબ ERP (Django + SQLite Database)
+# 🌾 Khedut & Vepari Hisab ERP (Agri-Mandi Billing & Accounting System)
 
-આ પ્રોજેક્ટ તમાકુ સબ માર્કેટ / એપીએમસી (Mandi) અને એગ્રી-ટ્રેડિંગ માટેનું સંપૂર્ણ **Django વેબ એપ્લિકેશન સોલ્યુશન** છે. તે ખેડૂત ખરીદી, વેપારી વેચાણ, GST ઇન્વોઇસ, ખતાવહી, રોજમેળ અને ખર્ચ નોંધણીને કાયમી ડેટાબેઝ સાથે જોડે છે.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.1%2B-092E20.svg)](https://www.djangoproject.com/)
+[![Database](https://img.shields.io/badge/Database-SQLite-003B57.svg)](https://www.sqlite.org/)
+[![Responsive](https://img.shields.io/badge/Design-Fully%20Responsive-brightgreen.svg)]()
+[![License](https://img.shields.io/badge/License-Proprietary-orange.svg)]()
 
----
+A comprehensive, enterprise-grade **Django Web Application ERP** custom-built for Agricultural Marketing Yards (APMC Mandi), Tobacco Sub-Markets, and Agri-commodity trading commissions.
 
-## 💻 બીજા કમ્પ્યુટરમાં ઇન્સ્ટોલ અને રન કરવાની સ્ટેપ-બાય-સ્ટેપ રીત (Step-by-Step Setup on Another PC)
-
-જો તમારે આ પ્રોજેક્ટ કોઈ **નવા અથવા બીજા કમ્પ્યુટર / લેપટોપમાં** ઇન્સ્ટોલ કરવો હોય, તો નીચેના સરળ સ્ટેપ્સ અનુસરો:
-
-### 📋 પૂર્વ-જરૂરિયાતો (Prerequisites)
-1. નવા કમ્પ્યુટરમાં **Python (3.10 કે તેથી નવું વર્ઝન)** હોવું જરૂરી છે.
-   - [python.org](https://www.python.org/downloads/) પરથી ડાઉનલોડ કરો.
-   - ⚠️ **મહત્વનું:** ઇન્સ્ટોલેશન શરૂ કરતી વખતે પહેલી સ્ક્રીન પર નીચે આપેલ **`Add python.exe to PATH`** ચેકબોક્સ પર અચૂક **Tick (✔) કરો**.
+This system seamlessly unifies **Farmer Purchases**, **Trader Sales**, **Official GST Tax Invoicing**, **Customer/Vendor Ledgers (Khata Vahi)**, **Daily Cashbook (Rozmel)**, and **Operational Expense Management** on top of a reliable SQLite persistence database.
 
 ---
 
-### 🔹 રીત ૧: ૧-ક્લિક ઓટોમેટિક સેટઅપ (Easiest Method - 1 Click)
+## 🌟 Key Features & Modules
 
-1. પ્રોજેક્ટનું આખું ફોલ્ડર (`heshul_projects`) નવા કમ્પ્યુટરમાં કોપી કરો (પેનડ્રાઈવ અથવા નેટવર્ક દ્વારા).
-2. ફોલ્ડર ખોલીને અંદર રહેલી **`run_app.bat`** ફાઈલ પર **ડબલ ક્લિક** કરો.
-3. સ્ક્રિપ્ટ આપોઆપ:
-   - Django ઇન્સ્ટોલ થયેલું છે કે નહીં તે ચેક કરશે.
-   - જો નહીં હોય, તો `requirements.txt` માંથી આપોઆપ ઇન્સ્ટોલ કરી લેશે.
-   - બ્રાઉઝરમાં આપોઆપ સિસ્ટમ ખોલી આપશે: **`http://127.0.0.1:8000/`**.
+### 1. 🌾 Farmer Purchase Billing (Khedut Kharedi Bill)
+- Supports both standard (kacha) estimates and formal GST purchase bills.
+- Standard agricultural weight-to-rate computation formula:
+  $$\text{Amount} = \frac{\text{Weight (kg)} \times \text{Rate per Maund (20 kg)}}{20}$$
+- Automated line calculations for packing sacks/bags (Bardan @ ₹15/bag), labor (Majuri), deductions (Kapat), and applicable GST.
+- Instant tracking of paid vs. outstanding dues with clean, print-ready voucher receipts (`@media print`).
+
+### 2. 🏪 Trader Sales Invoicing (Vepari Vechan Bill)
+- **Automatic Matching Mode:** Intelligently picks unbilled farmer purchase lots for selected buyers.
+- **Manual Entry Mode:** Direct commodity item entry with custom weight, rates, and sacks.
+- Built-in automatic calculation of **1.5% commission**, statutory Mandi market cess, sack costs, handling charges, transport freight, and taxes.
+- Customized commercial bill layout for mandi traders.
+
+### 3. 🧾 Official GST Tax Invoices
+- Complete GST-compliant invoice templates featuring Buyer Name, Address, and GSTIN.
+- Automatic tax breakdown: Intrastate (CGST + SGST) and Interstate (IGST).
+- Pre-configured bank account details (IFSC, Account Number, Branch) and authorized signatory sections.
+
+### 4. 📖 Ledger & Account Reconciliation (Khata Vahi)
+- Date-range and party-specific account filtering for both farmers and traders.
+- Streamlined payment capture: Farmer payout vouchers and Trader receipt vouchers (Cash / Bank).
+- Live balance tracking showing receivables (Lehnu) and payables (Denu).
+
+### 5. 📅 Daily Cashbook & Balance Sheet (Rozmel)
+- Real-time aggregation of daily credit/inflow, debit/outflow, operational overheads, and net liquid balance.
+- Live tracking of **Cash in Hand (Tijori Cash)** and **Bank Balance**.
+
+### 6. 💸 Expense Tracking (Kharch Nondh)
+- Categorized overhead entry for tea/refreshments, office stationery, rent, electricity, freight, and vehicle fuel.
+
+### 7. ⚙️ Firm Master Settings & Trader Directory
+- Centralized configuration for Firm Name, GSTIN, Bank Details, and Signatory name.
+- Custom rate configurations: Bardan rate, Market cess rate, and Commission percentage.
+- Trader Master directory for quick auto-complete dropdowns during bill generation.
+
+### 8. 📱 Responsive Architecture & Theme Engine
+- **Mobile First & Off-Canvas Navigation:** Seamless drawer navigation for smartphones and tablets.
+- **Light & Dark Mode:** Built-in royal navy and electric cyan theme toggle with persistent user preferences.
+- **Dedicated Keyboard Shortcuts (F2–F9):** Fast switching between billing modules for power users.
 
 ---
 
-### 🔹 રીત ૨: કમાન્ડ પ્રોમ્પ્ટથી સ્ટેપ-બાય-સ્ટેપ સેટઅપ (Manual Step-by-Step Guide)
+## 🛠️ Technology Stack
 
-#### સ્ટેપ ૧: પ્રોજેક્ટ ફોલ્ડર કોપી કરો
-આ પ્રોજેક્ટ ફોલ્ડર નવા કમ્પ્યુટરમાં કોઈ પણ ડ્રાઈવમાં મૂકો (દા.ત. `D:\heshul_projects` અથવા `C:\Users\Username\heshul_projects`).
+- **Backend:** Python 3.10+, Django 5.1
+- **Database:** SQLite3 (`db.sqlite3` with pre-configured schemas and migrations)
+- **Frontend:** Semantic HTML5, Vanilla Modern CSS3 (CSS Grid & Flexbox), Vanilla JavaScript (No heavy runtime libraries)
+- **Design Tokens:** Royal Deep Midnight Navy & Electric Cyan Fintech Palette
+- **Printing Engine:** Pure CSS `@media print` engine formatted for A4 & thermal voucher receipts
 
-#### સ્ટેપ ૨: પ્રોજેક્ટ ફોલ્ડરમાં Terminal / CMD ખોલો
-1. પ્રોજેક્ટ ફોલ્ડર ખોલો.
-2. ઉપર એડ્રેસ બાર (Address Bar) પર ક્લિક કરો, **`cmd`** લખીને **Enter** દબાવો.
+---
 
-#### સ્ટેપ ૩: વર્ચ્યુઅલ એન્વાયર્નમેન્ટ બનાવો (Virtual Environment - ભલામણ કરેલ)
-```cmd
+## 🚀 Quick Setup & Installation Guide
+
+### Prerequisites
+1. **Python 3.10 or higher** installed on your computer.
+   - Download from [python.org](https://www.python.org/downloads/).
+   - ⚠️ **Important:** During Windows installation, check the box: **`Add python.exe to PATH`**.
+
+---
+
+### Option 1: 1-Click Automatic Launch (Windows)
+
+1. Extract or clone this repository to your target folder.
+2. Double-click the **`run_app.bat`** file in the root directory.
+3. The script will automatically:
+   - Check and verify your Python & Django environment.
+   - Install missing dependencies from `requirements.txt`.
+   - Apply any pending database migrations.
+   - Launch your default browser at **`http://127.0.0.1:8000/`**.
+
+---
+
+### Option 2: Manual Setup via Terminal / Command Prompt
+
+#### Step 1: Open Terminal in Project Directory
+Open Command Prompt / PowerShell in the project directory:
+```bash
+cd c:\path\to\khedut-vepari-hisab-erp
+```
+
+#### Step 2: Create and Activate Virtual Environment (Recommended)
+```bash
+# Create virtual environment
 python -m venv venv
-```
-એક્ટિવેટ કરવા માટે:
-```cmd
+
+# Activate on Windows:
 venv\Scripts\activate
+
+# Activate on Linux / macOS:
+source venv/bin/activate
 ```
 
-#### સ્ટેપ ૪: જરૂરી લાઇબ્રેરી ઇન્સ્ટોલ કરો (Install Requirements)
-```cmd
+#### Step 3: Install Required Dependencies
+```bash
 pip install -r requirements.txt
 ```
-*(અથવા સીધું: `pip install django`)*
+*(Or directly: `pip install django`)*
 
-#### સ્ટેપ ૫: ડેટાબેઝ માઇગ્રેશન (Database Migrations)
-ડેટાબેઝ (`db.sqlite3`) પહેલેથી જ સાથે આપેલ છે, છતાં ટેબલ્સ વેરીફાય કરવા માટે રન કરો:
-```cmd
+#### Step 4: Apply Database Migrations
+```bash
 python manage.py migrate
 ```
 
-#### સ્ટેપ ૬: Django સર્વર શરૂ કરો (Run Development Server)
-```cmd
+#### Step 5: (Optional) Seed Sample Master Data
+```bash
+python manage.py seed_data
+```
+
+#### Step 6: Start the Development Server
+```bash
 python manage.py runserver 127.0.0.1:8000
 ```
 
-#### સ્ટેપ ૭: બ્રાઉઝરમાં પ્રોજેક્ટ ખોલો
-તમારા કમ્પ્યુટરમાં Chrome અથવા Edge બ્રાઉઝર ખોલીને નીચેની લિંક ઓપન કરો:
-👉 **ERP મુખ્ય ડેશબોર્ડ:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)  
-👉 **Django એડમિન પેનલ:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)  
-- **યુઝરનેમ (Username):** `admin`
-- **પાસવર્ડ (Password):** `admin`
+#### Step 7: Open in Your Browser
+- 🌐 **ERP Main Application:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- ⚙️ **Django Admin Portal:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+  - **Default Username:** `admin`
+  - **Default Password:** `admin`
 
 ---
 
-## 📱 લોકલ નેટવર્ક / Wi-Fi પર બીજા કમ્પ્યુટર કે મોબાઇલમાં કેવી રીતે વાપરવું? (Local Network / Wi-Fi Access)
+## 📶 Access over Local Network / Office Wi-Fi
 
-જો તમારી ઓફિસ કે દુકાનમાં એક જ Wi-Fi રાઉટર હોય અને તમે **એક કમ્પ્યુટરમાંથી બીજા PC અથવા મોબાઇલમાં** પણ આ જ સિસ્ટમ વાપરવા માંગતા હોવ:
+If your office has multiple PCs or you want to use tablets/phones on the same Wi-Fi router:
 
-1. સર્વર શરૂ કરતી વખતે નીચેનો કમાન્ડ આપો:
-   ```cmd
+1. Launch the server binding to all network interfaces:
+   ```bash
    python manage.py runserver 0.0.0.0:8000
    ```
-2. મુખ્ય કમ્પ્યુટરનો લોકલ IP એડ્રેસ ચેક કરો (`ipconfig` કમાન્ડ દ્વારા, દા.ત. `192.168.1.15`).
-3. હવે એ જ Wi-Fi સાથે જોડાયેલા બીજા કોઈ પણ મોબાઈલ કે લેપટોપમાં બ્રાઉઝર ખોલીને લખો:
-   ```
+2. Find the host computer's local IP address (run `ipconfig` in Command Prompt, e.g. `192.168.1.15`).
+3. On any mobile phone, tablet, or laptop connected to the same Wi-Fi, open the browser and navigate to:
+   ```text
    http://192.168.1.15:8000/
    ```
-   તમામ ડિવાઇસ પર એક જ લાઈવ ડેટાબેઝ સાથે આ ERP ચાલશે!
+   All connected devices will share the same live database instantly!
 
 ---
 
-## ❓ સામાન્ય પ્રશ્નો અને ઉકેલ (Troubleshooting & FAQs)
+## ⌨️ Fast Keyboard Shortcuts
 
-| સમસ્યા (Issue) | ઉકેલ (Solution) |
-|---|---|
-| `'python' is not recognized as an internal or external command` | કમ્પ્યુટરમાં Python ઇન્સ્ટોલ નથી અથવા ઇન્સ્ટોલેશન વખતે `Add python.exe to PATH` ટીક નથી કર્યું. Python ફરીથી ઇન્સ્ટોલ કરીને `Add to PATH` ટીક કરો. |
-| `Error: That port is already in use` | પોર્ટ 8000 પર બીજી કોઈ એપ્લિકેશન ચાલે છે. બીજા પોર્ટ પર ચલાવો: `python manage.py runserver 127.0.0.1:8080` અને બ્રાઉઝરમાં `http://127.0.0.1:8080/` ખોલો. |
-| એડમિન પાસવર્ડ ભૂલી ગયા હોવ તો? | નવો એડમિન યુઝર બનાવવા માટે કમાન્ડ ચલાવો: `python manage.py createsuperuser` અને નવી વિગત દાખલ કરો. |
+| Shortcut Key | Module Destination |
+| :---: | :--- |
+| **`F2`** | 🌾 Farmer Purchase Bill |
+| **`F3`** | 🏪 Trader Sales Bill |
+| **`F4`** | 🧾 GST Tax Invoice |
+| **`F6`** | 📖 Khata Vahi (Ledger) |
+| **`F7`** | 📅 Daily Cashbook (Rozmel) |
+| **`F8`** | 💸 Expense Book |
+| **`F9`** | ⚙️ Master Firm Settings |
 
 ---
 
-## 📦 મુખ્ય મોડ્યુલ્સ અને સુવિધાઓ (Core Features)
+## 📁 Project Directory Structure
 
-1. **🌾 ખેડૂત ખરીદી બિલ (Farmer Purchase Bill):**
-   - કાચું બિલ અને GST બિલ બંને માટે સપોર્ટ
-   - માલની ગણતરી: `વજન (કિ.ગ્રા.) × ભાવ પ્રતિ મણ (20 કિ.ગ્રા.) ÷ 20`
-   - બારદાન (દર બેગ ₹15), મજૂરી, કપાત અને GST ઉમેરો
-   - ચૂકવેલ અને બાકી રકમનું ઓટો-ટ્રેકિંગ સાથે પ્રિન્ટ-ફ્રેન્ડલી લેઆઉટ
+```text
+khedut-vepari-hisab-erp/
+├── billing/                       # Core ERP Billing application
+│   ├── management/commands/       # Custom management commands (seed_data)
+│   ├── migrations/                # Database migrations
+│   ├── admin.py                   # Django admin registrations
+│   ├── models.py                  # Database schemas (Farmer, Trader, Bills, Ledgers)
+│   ├── urls.py                    # URL route definitions
+│   └── views.py                   # Business logic and transaction processors
+├── hisab_core/                    # Django project core configuration
+│   ├── asgi.py                    # ASGI server entrypoint
+│   ├── settings.py                # Global settings and installed apps
+│   ├── urls.py                    # Root URL router
+│   └── wsgi.py                    # WSGI server entrypoint
+├── static/                        # Static assets
+│   ├── css/style.css              # Custom SaaS design system with Dark/Light theme
+│   └── js/app.js                  # Frontend interactivity & real-time calculators
+├── templates/billing/             # HTML5 templates
+│   ├── index.html                 # Main single-page interactive ERP dashboard
+│   ├── login.html                 # Authentication login screen
+│   ├── register.html              # User registration screen
+│   ├── print_farmer_bill.html     # Farmer purchase voucher print template
+│   ├── print_trader_bill.html     # Trader invoice print template
+│   └── print_gst_bill.html        # Official GST invoice print template
+├── db.sqlite3                     # SQLite database file
+├── manage.py                      # Django management script
+├── requirements.txt               # Python package dependencies
+├── run_app.bat                    # Windows 1-click startup automation script
+├── .gitignore                     # Git ignore rules
+└── README.md                      # Project documentation
+```
 
-2. **🏪 વેપારી વેચાણ બિલ (Trader Sales Bill):**
-   - ઓટોમેટિક મોડ: ખેડૂત બિલોમાંથી ચોક્કસ વેપારીના વેચાણ માલનું સિલેક્શન
-   - મેન્યુઅલ મોડ: સીધી આઈટમ એન્ટ્રી
-   - ૧.૫% કમિશન, માર્કેટ ફી, બારદાન, મજૂરી, ભાડું અને GST ગણતરી
-   - વેપારી બિલ પ્રિન્ટિંગ
+---
 
-3. **🧾 GST પાકું ઇન્વોઇસ (Tax Invoice):**
-   - વેપારીનું નામ, સરનામું, GSTIN
-   - CGST + SGST અથવા આંતરરાજ્ય માટે IGST
-   - બેંક ખાતા વિગતો અને ઓથોરાઇઝ્ડ સહી સાથે પાકું ટેક્સ ઇન્વોઇસ
+## ❓ Frequently Asked Questions (FAQ)
 
-4. **📖 ખતાવહી & બાકી હિસાબ (Ledger & Payments):**
-   - તારીખ મુજબ ખેડૂત અને વેપારીનું લેણું-દેણું ફિલ્ટર
-   - ખેડૂત ચુકવણી અને વેપારી જમા એન્ટ્રી (રોકડ / બેંક)
-   - સામાન્ય જમા-ઉધાર રોકડમેળ એન્ટ્રી
+**Q: `'python' is not recognized as an internal or external command`?**  
+**A:** Python is either not installed or not added to your system PATH. Re-run the Python installer and ensure the **`Add python.exe to PATH`** checkbox is selected.
 
-5. **📅 રોજનો હિસાબ (Daily Cashbook / Rozmel):**
-   - રોજેરોજની આવક, ઉધાર/ચુકવણી, ખર્ચ અને ચોખ્ખો ફેરફાર
-   - રોકડ બેલેન્સ (Cash in Hand) અને બેંક બેલેન્સનું જીવંત ટ્રેકિંગ
+**Q: `Error: That port is already in use`?**  
+**A:** Another service is using port 8000. Launch with an alternative port:
+```bash
+python manage.py runserver 127.0.0.1:8080
+```
+Then visit `http://127.0.0.1:8080/`.
 
-6. **💸 ખર્ચ નોંધણી (Expense Book):**
-   - ઓફિસ, ચા-નાસ્તો, સ્ટેશનરી, ભાડું, ડીઝલ વિગેરે ખર્ચની નોંધણી
+**Q: How do I create a new administrator account?**  
+**A:** Run the following command in your terminal and follow the prompts:
+```bash
+python manage.py createsuperuser
+```
 
-7. **⚙️ સેટિંગ અને વેપારી માસ્ટર (Master Settings):**
-   - પેઢીનું નામ, GST નંબર, બેંક વિગતો, સહી કરનારનું નામ
-   - બારદાન દર, માર્કેટ ફી દર, કમિશન ટકાવારી
-   - વેપારીઓના નામ ઉમેરવા/કાઢવા માટે માસ્ટર મેનેજમેન્ટ
+---
+
+## 📄 License & Ownership
+Copyright © 2026. All rights reserved. Designed and developed for APMC Mandi, Tobacco Trade, and Agri-Commodity Accounting.
