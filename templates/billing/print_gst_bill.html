@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="gu">
+<head>
+  <meta charset="utf-8">
+  <title>GST ઇન્વોઇસ #{{ bill.bill_no }}</title>
+  <style>
+    body { font-family: Arial, "Noto Sans Gujarati", sans-serif; margin: 0; padding: 25px; color: #111; font-size: 14px; }
+    .gst-invoice { max-width: 850px; margin: auto; }
+    .gst-head { display: flex; justify-content: space-between; border: 1px solid #222; padding: 12px; margin-top: 12px; }
+    .gst-party { border: 1px solid #222; border-top: 0; padding: 12px; }
+    .gst-invoice table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .gst-invoice td, .gst-invoice th { border: 1px solid #222; padding: 8px; text-align: center; }
+    .gst-invoice th { background: #f5f5f5; }
+    .gst-bottom { display: flex; justify-content: space-between; margin-top: 45px; border-top: 1px solid #222; padding-top: 18px; }
+    .gst-invoice h2 { letter-spacing: 0.5px; margin: 0; text-align: center; }
+    .btn-print { background: #0284c7; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 6px; margin-bottom: 15px; font-weight: 600; }
+    @media print {
+      .noprint { display: none !important; }
+      body { padding: 0; }
+      .gst-invoice { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align: center;" class="noprint">
+    <button class="btn-print" onclick="window.print()">🖨️ પ્રિન્ટ કરો (Print GST Invoice)</button>
+    <button class="btn-print" style="background:#555;" onclick="window.close()">બંધ કરો (Close)</button>
+  </div>
+
+  <div class="gst-invoice">
+    <div style="text-align: center;">
+      <h2>GST INVOICE / GST કર ભરતીયું</h2>
+      <small style="color: #666;">(Original for Recipient / મૂળ નકલ)</small>
+    </div>
+
+    <div class="gst-head">
+      <div>
+        <b>{{ bill.firm_name|default:st.firm_name }}</b><br>
+        {{ bill.firm_address|default:st.firm_address }}<br>
+        GSTIN: <b>{{ bill.firm_gst|default:st.firm_gst }}</b>
+      </div>
+      <div style="text-align: right;">
+        <b>બિલ નંબર:</b> {{ bill.bill_no }}<br>
+        <b>તારીખ:</b> {{ bill.date|date:"d/m/Y" }}<br>
+        <b>GST પ્રકાર:</b> {{ bill.get_tax_type_display }}
+      </div>
+    </div>
+
+    <div class="gst-party">
+      <b>વેપારી / ગ્રાહક:</b> {{ bill.party_name }}<br>
+      <b>સરનામું:</b> {{ bill.party_address|default:"—" }}<br>
+      <b>GSTIN:</b> {{ bill.party_gst|default:"—" }}
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>માલનો પ્રકાર</th>
+          <th>બેગ</th>
+          <th>વજન (કિ.ગ્રા.)</th>
+          <th>ભાવ પ્રતિ મણ (20 કિ.ગ્રા.)</th>
+          <th style="text-align: right;">કુલ રકમ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>{{ bill.goods_desc }}</b></td>
+          <td>{{ bill.bags }}</td>
+          <td>{{ bill.weight }}</td>
+          <td>₹{{ bill.price }}</td>
+          <td style="text-align: right;">₹{{ bill.base_amount }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table style="margin-top: 10px; width: 60%; margin-left: auto;">
+      <tr>
+        <td style="text-align: left;">માલ કુલ રકમ</td>
+        <td style="text-align: right;">₹{{ bill.base_amount }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left;">કુલ GST ({{ bill.gst_rate }}%)</td>
+        <td style="text-align: right;">₹{{ bill.tax_amount }}</td>
+      </tr>
+      {% if bill.tax_type == 'cgst' %}
+      <tr>
+        <td style="text-align: left;">CGST ({{ bill.gst_rate|floatformat:1|default:0 }}% ÷ 2)</td>
+        <td style="text-align: right;">₹{{ bill.cgst_amount }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left;">SGST ({{ bill.gst_rate|floatformat:1|default:0 }}% ÷ 2)</td>
+        <td style="text-align: right;">₹{{ bill.sgst_amount }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td style="text-align: left;">IGST ({{ bill.gst_rate }}%)</td>
+        <td style="text-align: right;">₹{{ bill.igst_amount }}</td>
+      </tr>
+      {% endif %}
+      <tr style="background: #eee; font-weight: bold; font-size: 16px;">
+        <th style="text-align: left;">કુલ ઇન્વોઇસ રકમ</th>
+        <th style="text-align: right;">₹{{ bill.total_amount }}</th>
+      </tr>
+    </table>
+
+    <div class="gst-bottom">
+      <div>
+        <b>બેંક વિગતો:</b><br>
+        બેંકનું નામ: {{ bill.bank_name|default:st.bank_name|default:"—" }}<br>
+        બેંક ખાતા નંબર: {{ bill.bank_account|default:st.bank_account|default:"—" }}
+      </div>
+      <div style="text-align: right;">
+        <b>વાસ્તે: {{ bill.firm_name|default:st.firm_name }}</b><br>
+        GSTIN: {{ bill.sign_gst|default:st.sign_gst|default:"—" }}<br>
+        {{ bill.sign_name|default:st.sign_name }}<br><br><br>
+        ઓથોરાઇઝ્ડ સહી: ________________________
+      </div>
+    </div>
+  </div>
+</body>
+</html>

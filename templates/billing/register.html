@@ -1,0 +1,675 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>નવું એકાઉન્ટ બનાવો | {{ st.firm_name|default:"ખેડૂત & વેપારી હિસાબ ERP" }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('app_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    /* Premium Dedicated Register Screen Styles */
+    .register-body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 32px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.14), transparent 45%),
+                  radial-gradient(circle at 15% 85%, rgba(16, 185, 129, 0.12), transparent 45%),
+                  radial-gradient(circle at 50% 50%, rgba(14, 116, 144, 0.08), transparent 60%),
+                  linear-gradient(145deg, #030a16 0%, #071426 50%, #0b1d36 100%);
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Gujarati', sans-serif;
+      position: relative;
+      overflow-x: hidden;
+      box-sizing: border-box;
+    }
+
+    /* Ambient Decorative Floating Orbs */
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+      animation: floatPulse 14s ease-in-out infinite alternate;
+    }
+    .ambient-orb-1 {
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.3), transparent 70%);
+      top: -80px;
+      right: -80px;
+    }
+    .ambient-orb-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.22), transparent 70%);
+      bottom: -100px;
+      left: -80px;
+      animation-delay: -7s;
+    }
+
+    @keyframes floatPulse {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-25px, -20px) scale(1.08); }
+    }
+
+    .register-wrapper {
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      z-index: 1;
+      animation: registerFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes registerFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .register-card {
+      background: rgba(11, 29, 54, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(103, 232, 249, 0.18);
+      border-radius: 22px;
+      padding: 36px 34px;
+      box-shadow: 0 24px 60px -12px rgba(3, 10, 22, 0.85),
+                  0 0 0 1px rgba(255, 255, 255, 0.05),
+                  0 0 35px -5px rgba(6, 182, 212, 0.18);
+      color: #f8fafc;
+    }
+
+    /* Brand Header */
+    .register-brand {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+    .register-icon-box {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.25));
+      border: 1px solid rgba(103, 232, 249, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.3);
+      position: relative;
+    }
+
+    .register-title {
+      font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif;
+      font-size: 23px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 6px;
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+    .register-subtitle {
+      font-size: 13.5px;
+      color: #94a3b8;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    /* Alert Messages */
+    .register-alerts {
+      margin-bottom: 20px;
+    }
+    .register-alert {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.45;
+      margin-bottom: 10px;
+      animation: alertSlide 0.3s ease-out;
+    }
+    @keyframes alertSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .register-alert.error {
+      background: rgba(225, 29, 72, 0.16);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #fecdd3;
+    }
+    .register-alert.success {
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+    }
+    .register-alert.info {
+      background: rgba(14, 165, 233, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #bae6fd;
+    }
+    .register-alert-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Form Layout */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 7px;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      font-size: 15px;
+      color: #64748b;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .register-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 42px 0 42px;
+      background: rgba(7, 20, 38, 0.7);
+      border: 1px solid rgba(103, 232, 249, 0.2);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+    .register-input::placeholder {
+      color: #64748b;
+    }
+    .register-input:focus {
+      border-color: #38bdf8;
+      background: rgba(7, 20, 38, 0.95);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25), 0 0 16px rgba(14, 165, 233, 0.2);
+    }
+    .register-input:focus + .input-icon,
+    .register-input:focus ~ .input-icon {
+      color: #38bdf8;
+    }
+    .input-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    .input-toggle-pwd:hover {
+      color: #38bdf8;
+    }
+
+    /* Live Password Match Validation Note */
+    .match-note {
+      font-size: 11.5px;
+      margin-top: 5px;
+      display: none;
+      font-weight: 600;
+    }
+    .match-note.matched {
+      display: block;
+      color: #34d399;
+    }
+    .match-note.mismatched {
+      display: block;
+      color: #f87171;
+    }
+
+    /* Submit Button */
+    .btn-register-submit {
+      width: 100%;
+      height: 50px;
+      margin-top: 8px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+      border: 1px solid rgba(110, 231, 183, 0.4);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 15.5px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.45);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-register-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(16, 185, 129, 0.6), 0 0 16px rgba(52, 211, 153, 0.4);
+      background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+    }
+    .btn-register-submit:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Login Redirect Box */
+    .login-redirect-card {
+      margin-top: 22px;
+      padding: 13px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: center;
+      font-size: 13.5px;
+      color: #94a3b8;
+    }
+    .login-redirect-card a {
+      color: #38bdf8;
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .login-redirect-card a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer Note */
+    .register-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Floating Theme Toggle */
+    .auth-theme-toggle {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      z-index: 100;
+      background: rgba(11, 29, 54, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(103, 232, 249, 0.25);
+      border-radius: 999px;
+      padding: 7px 14px;
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(3, 10, 22, 0.4);
+    }
+    .auth-theme-toggle:hover {
+      background: rgba(14, 165, 233, 0.25);
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    /* Light Mode Overrides for Register Page */
+    [data-theme="light"] .register-body {
+      background: radial-gradient(circle at 85% 15%, rgba(14, 165, 233, 0.15), transparent 45%),
+                  radial-gradient(circle at 15% 85%, rgba(16, 185, 129, 0.12), transparent 45%),
+                  linear-gradient(145deg, #eef2f6 0%, #f8fafc 50%, #e2e8f0 100%);
+    }
+    [data-theme="light"] .auth-theme-toggle {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #cbd5e1;
+      color: #0f172a;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
+    [data-theme="light"] .auth-theme-toggle:hover {
+      background: #ffffff;
+      border-color: #0ea5e9;
+    }
+    [data-theme="light"] .register-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(14, 165, 233, 0.25);
+      color: #0f172a;
+      box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.12), 0 0 20px rgba(14, 165, 233, 0.08);
+    }
+    [data-theme="light"] .register-title {
+      color: #081528;
+    }
+    [data-theme="light"] .register-subtitle {
+      color: #64748b;
+    }
+    [data-theme="light"] .form-label {
+      color: #334155;
+    }
+    [data-theme="light"] .register-input {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    [data-theme="light"] .register-input:focus {
+      background: #ffffff;
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+    }
+    [data-theme="light"] .login-redirect-card {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    @media (max-width: 520px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .register-card {
+        padding: 28px 20px;
+        border-radius: 16px;
+      }
+      .register-title {
+        font-size: 21px;
+      }
+    }
+  </style>
+</head>
+<body class="register-body">
+
+  <!-- Floating Theme Switcher -->
+  <button type="button" class="auth-theme-toggle" onclick="toggleAuthTheme()" title="થીમ બદલો (Dark / Light Theme)">
+    <span id="authThemeIcon">🌙</span>
+    <span id="authThemeLabel">Dark</span>
+  </button>
+
+  <div class="ambient-orb ambient-orb-1"></div>
+  <div class="ambient-orb ambient-orb-2"></div>
+
+  <div class="register-wrapper">
+    <div class="register-card">
+
+      <!-- Header & Firm Branding -->
+      <div class="register-brand">
+        <div class="register-icon-box" title="નવું એકાઉન્ટ">
+          🌱
+        </div>
+        <h1 class="register-title">નવું એકાઉન્ટ બનાવો</h1>
+        <p class="register-subtitle">{{ st.firm_name|default:"ખેડૂત & વેપારી હિસાબ ERP" }} - યુઝર રજીસ્ટ્રેશન</p>
+      </div>
+
+      <!-- Flash Messages / Alerts -->
+      {% if messages %}
+      <div class="register-alerts">
+        {% for message in messages %}
+        <div class="register-alert {% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+          <span class="register-alert-icon">
+            {% if message.tags == 'error' %}⚠️{% elif message.tags == 'success' %}✅{% else %}ℹ️{% endif %}
+          </span>
+          <div>{{ message }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Register Form -->
+      <form action="{% url 'billing:register' %}" method="post" id="registerForm" autocomplete="on">
+        {% csrf_token %}
+
+        <!-- Full Name Input -->
+        <div class="form-group">
+          <label class="form-label" for="fullNameInput">
+            <span>પૂરું નામ (Full Name)</span>
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="fullNameInput" 
+              name="full_name" 
+              value="{{ full_name|default:'' }}" 
+              class="register-input" 
+              placeholder="દા.ત. રમેશભાઈ પટેલ" 
+              autofocus 
+              autocomplete="name">
+            <span class="input-icon">👤</span>
+          </div>
+        </div>
+
+        <!-- Username & Email Row -->
+        <div class="form-row">
+          <!-- Username Input -->
+          <div class="form-group">
+            <label class="form-label" for="regUsernameInput">
+              <span>યુઝરનેમ (Username) *</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="regUsernameInput" 
+                name="username" 
+                value="{{ username|default:'' }}" 
+                class="register-input" 
+                placeholder="દા.ત. ramesh" 
+                required 
+                autocomplete="username">
+              <span class="input-icon">🏷️</span>
+            </div>
+          </div>
+
+          <!-- Email Input -->
+          <div class="form-group">
+            <label class="form-label" for="regEmailInput">
+              <span>ઈમેલ (Email - વૈકલ્પિક)</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="email" 
+                id="regEmailInput" 
+                name="email" 
+                value="{{ email|default:'' }}" 
+                class="register-input" 
+                placeholder="ramesh@example.com" 
+                autocomplete="email">
+              <span class="input-icon">✉️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <label class="form-label" for="regPasswordInput">
+            <span>પાસવર્ડ (Password) *</span>
+            <span style="font-size: 11px; color: #94a3b8;">ઓછામાં ઓછા 4 અક્ષર</span>
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="regPasswordInput" 
+              name="password" 
+              class="register-input" 
+              placeholder="નવો પાસવર્ડ દાખલ કરો" 
+              required 
+              autocomplete="new-password">
+            <span class="input-icon">🔒</span>
+            <button type="button" class="input-toggle-pwd" id="toggleRegPwdBtn" title="પાસવર્ડ જુઓ / છુપાવો">
+              <span id="eyeIconReg">👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm Password Input -->
+        <div class="form-group">
+          <label class="form-label" for="confirmPasswordInput">
+            <span>પાસવર્ડ કન્ફર્મ કરો (Confirm Password) *</span>
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="confirmPasswordInput" 
+              name="confirm_password" 
+              class="register-input" 
+              placeholder="પાસવર્ડ ફરીથી દાખલ કરો" 
+              required 
+              autocomplete="new-password">
+            <span class="input-icon">🔐</span>
+            <button type="button" class="input-toggle-pwd" id="toggleConfPwdBtn" title="પાસવર્ડ જુઓ / છુપાવો">
+              <span id="eyeIconConf">👁️</span>
+            </button>
+          </div>
+          <div id="matchNote" class="match-note"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-register-submit" id="submitRegBtn">
+          <span>એકાઉન્ટ બનાવો & શરૂ કરો</span>
+          <span style="font-size: 17px;">➔</span>
+        </button>
+
+      </form>
+
+      <!-- Already Have Account Redirect Card -->
+      <div class="login-redirect-card">
+        <span>પહેલેથી જ એકાઉન્ટ છે?</span>
+        <a href="{% url 'billing:login' %}">
+          <span>અહીં લૉગ ઇન કરો (Sign In)</span> ➔
+        </a>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="register-footer">
+        <div>🔒 સુરક્ષિત રજીસ્ટ્રેશન &bull; Django v5 &bull; v2.0 ERP</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Toggle Password Visibility for Primary Password
+    const toggleRegPwd = document.getElementById('toggleRegPwdBtn');
+    const regPwdInput = document.getElementById('regPasswordInput');
+    const eyeIconReg = document.getElementById('eyeIconReg');
+
+    if (toggleRegPwd && regPwdInput) {
+      toggleRegPwd.addEventListener('click', function() {
+        if (regPwdInput.type === 'password') {
+          regPwdInput.type = 'text';
+          eyeIconReg.textContent = '🙈';
+        } else {
+          regPwdInput.type = 'password';
+          eyeIconReg.textContent = '👁️';
+        }
+      });
+    }
+
+    // Toggle Password Visibility for Confirm Password
+    const toggleConfPwd = document.getElementById('toggleConfPwdBtn');
+    const confPwdInput = document.getElementById('confirmPasswordInput');
+    const eyeIconConf = document.getElementById('eyeIconConf');
+
+    if (toggleConfPwd && confPwdInput) {
+      toggleConfPwd.addEventListener('click', function() {
+        if (confPwdInput.type === 'password') {
+          confPwdInput.type = 'text';
+          eyeIconConf.textContent = '🙈';
+        } else {
+          confPwdInput.type = 'password';
+          eyeIconConf.textContent = '👁️';
+        }
+      });
+    }
+
+    // Live Password Match Check
+    const matchNote = document.getElementById('matchNote');
+    function checkPasswordsMatch() {
+      const p1 = regPwdInput ? regPwdInput.value : '';
+      const p2 = confPwdInput ? confPwdInput.value : '';
+      if (!p2) {
+        matchNote.className = 'match-note';
+        matchNote.textContent = '';
+        return;
+      }
+      if (p1 === p2) {
+        matchNote.className = 'match-note matched';
+        matchNote.textContent = '✓ બંને પાસવર્ડ મેળ ખાય છે (Passwords Match)';
+      } else {
+        matchNote.className = 'match-note mismatched';
+        matchNote.textContent = '✗ બંને પાસવર્ડ મેળ ખાતા નથી (Passwords do not match)';
+      }
+    }
+
+    if (regPwdInput && confPwdInput) {
+      regPwdInput.addEventListener('input', checkPasswordsMatch);
+      confPwdInput.addEventListener('input', checkPasswordsMatch);
+    }
+
+    // Button loading state on submit
+    const regForm = document.getElementById('registerForm');
+    const submitRegBtn = document.getElementById('submitRegBtn');
+    if (regForm && submitRegBtn) {
+      regForm.addEventListener('submit', function() {
+        submitRegBtn.disabled = true;
+        submitRegBtn.style.opacity = '0.85';
+        submitRegBtn.innerHTML = '<span>એકાઉન્ટ બની રહ્યું છે...</span> <span>⏳</span>';
+      });
+    }
+
+    // Theme Toggle Handler
+    function toggleAuthTheme() {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('app_theme', next);
+      updateAuthThemeBtn(next);
+    }
+
+    function updateAuthThemeBtn(theme) {
+      const isDark = theme === 'dark';
+      const icon = document.getElementById('authThemeIcon');
+      const label = document.getElementById('authThemeLabel');
+      if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+      if (label) label.textContent = isDark ? 'Light' : 'Dark';
+    }
+
+    updateAuthThemeBtn(document.documentElement.getAttribute('data-theme') || 'dark');
+  </script>
+</body>
+</html>

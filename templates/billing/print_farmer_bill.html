@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="gu">
+<head>
+  <meta charset="utf-8">
+  <title>ખેડૂત બિલ #{{ bill.bill_no }}</title>
+  <style>
+    body { font-family: Arial, "Noto Sans Gujarati", sans-serif; margin: 0; padding: 25px; color: #111; font-size: 14px; }
+    .bill-box { max-width: 800px; margin: auto; border: 2px solid #222; padding: 20px; border-radius: 6px; }
+    .top-header { text-align: center; border-bottom: 2px solid #222; padding-bottom: 12px; margin-bottom: 15px; }
+    .top-header h1 { margin: 0 0 5px; font-size: 24px; color: #081528; }
+    .top-header p { margin: 2px 0; color: #444; }
+    .bill-title { text-align: center; font-size: 18px; font-weight: bold; background: #f0f9ff; color: #0369a1; padding: 6px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #bae6fd; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .meta-grid div { padding: 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+    th { background: #f8fafc; color: #081528; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    .totals-area { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .totals-table { width: 350px; border-collapse: collapse; }
+    .totals-table td { padding: 6px 10px; border: 1px solid #999; }
+    .totals-table tr.highlight td { background: #f0f9ff; font-weight: bold; font-size: 16px; border: 2px solid #0284c7; color: #081528; }
+    .signatures { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px dashed #999; }
+    .btn-print { background: #0284c7; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 6px; margin-bottom: 15px; font-weight: 600; }
+    @media print {
+      .noprint { display: none !important; }
+      body { padding: 0; }
+      .bill-box { border: 1px solid #000; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align: center;" class="noprint">
+    <button class="btn-print" onclick="window.print()">🖨️ પ્રિન્ટ કરો (Print)</button>
+    <button class="btn-print" style="background:#555;" onclick="window.close()">બંધ કરો (Close)</button>
+  </div>
+
+  <div class="bill-box">
+    <div class="top-header">
+      <div style="font-size: 12px; color: #666;">|| શ્રી ગણેશાય નમઃ || શ્રી ઉમિયા માતાય નમઃ ||</div>
+      <h1>{{ bill.firm_name|default:st.firm_name }}</h1>
+      <p>{{ st.firm_address }}</p>
+      {% if st.firm_gst %}<p>GSTIN: <b>{{ st.firm_gst }}</b></p>{% endif %}
+    </div>
+
+    <div class="bill-title">
+      ખેડૂત ખરીદી હિસાબ બિલ — {{ bill.bill_type }}
+    </div>
+
+    <div class="meta-grid">
+      <div><b>બિલ નંબર:</b> {{ bill.bill_no }}</div>
+      <div class="text-right"><b>તારીખ:</b> {{ bill.date|date:"d/m/Y" }}</div>
+      <div><b>ખેડૂતનું નામ:</b> {{ bill.farmer_name }}</div>
+      <div class="text-right"><b>મોબાઇલ:</b> {{ bill.mobile|default:"—" }}</div>
+      <div><b>ગામ:</b> {{ bill.village|default:"—" }}</div>
+      <div class="text-right"><b>પ્લોટ નંબર:</b> {{ bill.plot_no|default:"—" }}</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px;">અ.નં.</th>
+          <th class="text-left">માલની જાત</th>
+          <th>વેપારી</th>
+          <th>બેગ</th>
+          <th>વજન (કિ.ગ્રા.)</th>
+          <th>ભાવ (પ્રતિ 20 કિ.ગ્રા.)</th>
+          <th class="text-right">રકમ ₹</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in bill.items.all %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td class="text-left"><b>{{ item.item_type }}</b></td>
+          <td>{{ item.trader_name|default:"—" }}</td>
+          <td>{{ item.bags }}</td>
+          <td>{{ item.weight }}</td>
+          <td>₹{{ item.rate }}</td>
+          <td class="text-right">₹{{ item.amount }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">કોઈ માલ નોંધાયેલ નથી.</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr style="background: #fafafa; font-weight: bold;">
+          <td colspan="3" class="text-left">કુલ માલ:</td>
+          <td>{{ bill.total_bags }}</td>
+          <td>{{ bill.total_weight }} કિ.ગ્રા.</td>
+          <td>-</td>
+          <td class="text-right">₹{{ bill.base_amount }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="totals-area">
+      <table class="totals-table">
+        <tr>
+          <td>માલ કુલ રકમ</td>
+          <td class="text-right">₹{{ bill.base_amount }}</td>
+        </tr>
+        <tr>
+          <td>બારદાન રકમ (+)</td>
+          <td class="text-right">₹{{ bill.bardan_amount }}</td>
+        </tr>
+        {% if bill.labor > 0 %}
+        <tr>
+          <td>મજૂરી (+)</td>
+          <td class="text-right">₹{{ bill.labor }}</td>
+        </tr>
+        {% endif %}
+        {% if bill.deduction > 0 %}
+        <tr>
+          <td>કપાત (−)</td>
+          <td class="text-right">₹{{ bill.deduction }}</td>
+        </tr>
+        {% endif %}
+        {% if bill.tax_amount > 0 %}
+        <tr>
+          <td>GST ({{ bill.gst_rate }}%) (+)</td>
+          <td class="text-right">₹{{ bill.tax_amount }}</td>
+        </tr>
+        {% endif %}
+        <tr class="highlight">
+          <td>ખેડૂતને ચૂકવવાપાત્ર કુલ</td>
+          <td class="text-right">₹{{ bill.total_amount }}</td>
+        </tr>
+        <tr>
+          <td>ચૂકવેલ રકમ ({{ bill.get_payment_mode_display }})</td>
+          <td class="text-right" style="color: green;">₹{{ bill.paid_amount }}</td>
+        </tr>
+        <tr>
+          <td><b>બાકી રકમ</b></td>
+          <td class="text-right" style="color: {% if bill.due_amount > 0 %}#c00{% else %}green{% endif %}; font-weight: bold;">
+            ₹{{ bill.due_amount|floatformat:2 }}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="signatures">
+      <div>
+        <br><br>
+        ___________________________<br>
+        <b>ખેડૂતની સહી / અંગૂઠો</b>
+      </div>
+      <div style="text-align: right;">
+        <b>વાસ્તે: {{ bill.firm_name|default:st.firm_name }}</b><br><br><br>
+        ___________________________<br>
+        <b>ઓથોરાઇઝ્ડ સહી કરનાર</b>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

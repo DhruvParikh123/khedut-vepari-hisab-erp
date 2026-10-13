@@ -1,0 +1,843 @@
+{% load static %}
+<!doctype html>
+<html lang="gu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ખેડૂત & વેપારી હિસાબ ERP</title>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('app_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script>
+    window.appSettings = {
+      firm: "{{ st.firm_name|escapejs }}",
+      bard: {{ st.bardan_rate|default:15 }},
+      market: {{ st.market_fee_rate|default:3 }},
+      comm: {{ st.commission_rate|default:1.5 }},
+      cash: {{ st.initial_cash|default:0 }},
+      bank: {{ st.initial_bank|default:0 }}
+    };
+    window.traderNamesList = [
+      {% for t in traders %}"{{ t.name|escapejs }}",{% endfor %}
+    ];
+  </script>
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- Collapsible Modern Sidebar Navigation -->
+    <aside class="sidebar" id="appSidebar">
+      <!-- Sidebar Header & Brand -->
+      <div class="sidebar-header">
+        <div class="brand-wrapper" onclick="toggleSidebar()" style="cursor: pointer;" title="Sidebar ખોલો / સંકોચો">
+          <div class="brand-icon-box">🌿</div>
+          <div class="brand-titles">
+            <h1 class="brand-title" id="brandTitle">{{ st.firm_name|default:"ખેડૂત & વેપારી હિસાબ ERP" }}</h1>
+            <span class="brand-subtitle">તમાકુ માર્કેટિંગ & એગ્રી ERP</span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Sidebar સંકોચો / પહોળો કરો">
+          ‹
+        </button>
+        <button type="button" class="sidebar-close-mobile" onclick="closeMobileSidebar()" title="મેનૂ બંધ કરો">
+          ✕
+        </button>
+      </div>
+
+      <!-- Quick Glance Wallet Mini Widget -->
+      <div class="sidebar-wallet">
+        <div class="sidebar-wallet-title">
+          <span>💼</span> તિજોરી બેલેન્સ
+        </div>
+        <div class="sidebar-wallet-rows">
+          <div class="wallet-row cash">
+            <span class="lbl">રોકડ (Cash):</span>
+            <span class="val">₹{{ cash_balance|floatformat:2 }}</span>
+          </div>
+          <div class="wallet-row bank">
+            <span class="lbl">બેંક (Bank):</span>
+            <span class="val">₹{{ bank_balance|floatformat:2 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module Navigation Links -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">બિલિંગ મોડ્યુલ્સ</div>
+
+        <button type="button" class="nav-btn active" data-tab="farmer" onclick="tab('farmer', this)">
+          <span class="nav-icon">🌾</span>
+          <span class="nav-text">ખેડૂત ખરીદી બિલ</span>
+          <span class="nav-pill-badge">ખરીદી</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-tab="trader" onclick="tab('trader', this)">
+          <span class="nav-icon">🏪</span>
+          <span class="nav-text">વેપારી વેચાણ બિલ</span>
+          <span class="nav-pill-badge">વેચાણ</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-tab="gst" onclick="tab('gst', this)">
+          <span class="nav-icon">🧾</span>
+          <span class="nav-text">GST પાકું ઇન્વોઇસ</span>
+          <span class="nav-pill-badge">Tax</span>
+        </button>
+
+        <div class="nav-section-title">નાણાકીય હિસાબ & રોજમેળ</div>
+
+        <button type="button" class="nav-btn" data-tab="ledger" onclick="tab('ledger', this)">
+          <span class="nav-icon">📖</span>
+          <span class="nav-text">ખતાવહી & બાકી હિસાબ</span>
+          <span class="nav-pill-badge">ખાતાવહી</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-tab="daily" onclick="tab('daily', this)">
+          <span class="nav-icon">📅</span>
+          <span class="nav-text">રોજનો હિસાબ (રોજમેળ)</span>
+          <span class="nav-pill-badge">લાઈવ</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-tab="expense" onclick="tab('expense', this)">
+          <span class="nav-icon">💸</span>
+          <span class="nav-text">ખર્ચ નોંધણી બુક</span>
+          <span class="nav-pill-badge">ખર્ચ</span>
+        </button>
+
+        <div class="nav-section-title">સિસ્ટમ & વ્યવસ્થાપન</div>
+
+        <button type="button" class="nav-btn" data-tab="settings" onclick="tab('settings', this)">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-text">પેઢી સેટિંગ્સ & માસ્ટર</span>
+          <span class="nav-pill-badge">કંટ્રોલ</span>
+        </button>
+
+        <a href="/admin/" target="_blank" class="admin-link">
+          <span class="nav-icon">🛠️</span>
+          <span class="nav-text">Django Admin</span>
+          <span class="nav-pill-badge" style="background: rgba(255,255,255,0.08);">DB</span>
+        </a>
+
+        <a href="{% url 'billing:logout' %}" class="sidebar-logout-link" title="સિસ્ટમમાંથી લૉગ આઉટ કરો">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-text">લૉગ આઉટ (Logout)</span>
+          <span class="nav-pill-badge" style="background: rgba(244, 63, 94, 0.15); color: #fda4af;">Exit</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer Status & Theme Toggle -->
+      <div class="sidebar-footer">
+        <div>
+          <span class="status-dot"></span> સિસ્ટમ સક્રિય
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="sidebar-theme-btn" onclick="toggleTheme()" title="થીમ બદલો (Dark/Light)">
+            <span id="sidebarThemeIcon">🌙</span>
+          </button>
+          <span style="font-family: monospace; font-size: 11px;">v2.0</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+
+      <!-- Sticky Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle Menu">
+            <span>☰</span>
+          </button>
+          <div class="module-breadcrumb">
+            <span class="breadcrumb-prefix">મોડ્યુલ /</span>
+            <span class="breadcrumb-active" id="activeModuleTitle">🌾 ખેડૂત ખરીદી બિલ</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="header-badges">
+            <div class="badge-card badge-cash">
+              <div class="badge-icon">💵</div>
+              <div>
+                <span class="badge-label">રોકડ બેલેન્સ (Cash)</span>
+                <span class="badge-val">₹{{ cash_balance|floatformat:2 }}</span>
+              </div>
+            </div>
+            <div class="badge-card badge-bank">
+              <div class="badge-icon">🏦</div>
+              <div>
+                <span class="badge-label">બેંક બેલેન્સ (Bank)</span>
+                <span class="badge-val">₹{{ bank_balance|floatformat:2 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modern Theme Toggle (Dark / Light) -->
+          <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="થીમ બદલો (Dark / Light Theme)">
+            <span class="theme-icon" id="themeIcon">🌙</span>
+            <span class="theme-label" id="themeLabel">Dark</span>
+          </button>
+
+          <!-- User Profile & Logout -->
+          <div class="header-user-menu">
+            <div class="user-chip" title="લૉગિન થયેલ એકાઉન્ટ: {{ request.user.username }}">
+              <span class="user-chip-icon">👤</span>
+              <div class="user-chip-details">
+                <span class="user-chip-name">{{ request.user.first_name|default:request.user.username|title }}</span>
+                <span class="user-chip-role">{% if request.user.is_superuser %}એડમિન{% else %}યુઝર{% endif %}</span>
+              </div>
+            </div>
+            <a href="{% url 'billing:logout' %}" class="btn-topbar-logout" title="લૉગ આઉટ કરો">
+              <span>🚪</span>
+              <span class="logout-text">લૉગ આઉટ</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main class="wrap">
+
+        {% if messages %}
+        <div class="alert-container">
+          {% for message in messages %}
+          <div class="app-alert alert-{{ message.tags|default:'info' }}">
+            <span class="alert-icon">
+              {% if message.tags == 'error' %}⚠️{% elif message.tags == 'success' %}✅{% else %}ℹ️{% endif %}
+            </span>
+            <span class="alert-text">{{ message }}</span>
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()" title="બંધ કરો">✕</button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- PRO Executive KPI Dashboard Banner -->
+        <div class="pro-kpi-banner">
+          <div class="kpi-card kpi-emerald">
+            <div class="kpi-icon-box">🌾</div>
+            <div class="kpi-content">
+              <span class="kpi-title">ખેડૂત ખરીદી</span>
+              <div class="kpi-value">{{ farmer_bills_count }} બિલો</div>
+              <span class="kpi-sub">કુલ ₹{{ total_farmer_purchases|floatformat:2 }}</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-gold">
+            <div class="kpi-icon-box">🏪</div>
+            <div class="kpi-content">
+              <span class="kpi-title">વેપારી વેચાણ</span>
+              <div class="kpi-value">{{ trader_bills_count }} બિલો</div>
+              <span class="kpi-sub">કુલ ₹{{ total_trader_sales|floatformat:2 }}</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-sapphire">
+            <div class="kpi-icon-box">🧾</div>
+            <div class="kpi-content">
+              <span class="kpi-title">GST પાકા ઇન્વોઇસ</span>
+              <div class="kpi-value">{{ gst_bills_count }} ઇન્વોઇસ</div>
+              <span class="kpi-sub">ટેક્સ રિટર્ન રેકોર્ડ</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-violet">
+            <div class="kpi-icon-box">💼</div>
+            <div class="kpi-content">
+              <span class="kpi-title">કુલ લિક્વિડિટી (રોકડ + બેંક)</span>
+              <div class="kpi-value">₹{{ total_liquidity|floatformat:2 }}</div>
+              <span class="kpi-sub">રોકડમેળ ઉપલબ્ધ બેલેન્સ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRO Fast Keyboard Shortcut Strip -->
+        <div class="pro-shortcuts-bar">
+          <span class="shortcut-label">⚡ ઝડપી શોર્ટકટ:</span>
+          <div class="shortcut-chip" onclick="tab('farmer')"><kbd>F2</kbd> <span>🌾 ખેડૂત બિલ</span></div>
+          <div class="shortcut-chip" onclick="tab('trader')"><kbd>F3</kbd> <span>🏪 વેપારી બિલ</span></div>
+          <div class="shortcut-chip" onclick="tab('gst')"><kbd>F4</kbd> <span>🧾 GST બિલ</span></div>
+          <div class="shortcut-chip" onclick="tab('ledger')"><kbd>F6</kbd> <span>📖 ખતાવહી</span></div>
+          <div class="shortcut-chip" onclick="tab('daily')"><kbd>F7</kbd> <span>📅 રોજમેળ</span></div>
+          <div class="shortcut-chip" onclick="tab('expense')"><kbd>F8</kbd> <span>💸 ખર્ચ</span></div>
+          <div class="shortcut-chip" onclick="tab('settings')"><kbd>F9</kbd> <span>⚙️ સેટિંગ્સ</span></div>
+        </div>
+
+    <!-- 1. FARMER BILL TAB -->
+    <section id="farmer" class="tab active">
+      <div class="card">
+        <h2><span>🌾</span> ખેડૂત ખરીદી બિલ બનાવવું</h2>
+        <div class="grid">
+          <label class="field">પેઢીનું નામ
+            <input id="fFirm" value="{{ st.firm_name }}">
+          </label>
+          <label class="field">બિલ નંબર
+            <input id="fNo" value="{{ next_fb_no }}">
+          </label>
+          <label class="field">તારીખ
+            <input id="fDate" type="date" value="{{ today }}">
+          </label>
+          <label class="field">ખેડૂતનું નામ
+            <input id="fName" placeholder="ખેડૂતનું પૂરું નામ લખો" list="farmerList">
+            <datalist id="farmerList">
+              {% for f in farmers %}<option value="{{ f }}">{% endfor %}
+            </datalist>
+          </label>
+          <label class="field">મોબાઇલ નંબર
+            <input id="fMobile" placeholder="મોબાઇલ">
+          </label>
+          <label class="field">ગામનું નામ
+            <input id="fVillage" placeholder="ગામ">
+          </label>
+          <label class="field">પ્લોટ નંબર
+            <input id="fPlot" placeholder="પ્લોટ નં.">
+          </label>
+          <label class="field">બિલ પ્રકાર
+            <select id="fKind" onchange="toggleGST()">
+              <option value="કાચું">કાચું બિલ (Regular)</option>
+              <option value="GST">GST બિલ (Tax)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span>📦</span> માલની વિગતવાર એન્ટ્રી</h3>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left;">માલની જાત</th>
+                <th>વેપારી (ખરીદનાર)</th>
+                <th>બેગ (બોરી)</th>
+                <th>વજન (કિ.ગ્રા.)</th>
+                <th>ભાવ (પ્રતિ ૨૦ કિ.ગ્રા.)</th>
+                <th style="text-align: right;">કુલ રકમ ₹</th>
+                <th style="width: 50px;"></th>
+              </tr>
+            </thead>
+            <tbody id="fRows"></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" onclick="addFRow()">+ માલ ઉમેરો (Add Item)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="grid">
+          <label class="field">
+            <span class="field-label">બારદાન (બેગ × ₹<span id="fBardRate">{{ st.bardan_rate|default:15 }}</span>)</span>
+            <input id="fBard" readonly>
+          </label>
+          <label class="field">મજૂરી ₹
+            <input id="fLab" type="number" min="0" step="any" value="0" oninput="calcF()">
+          </label>
+          <label class="field">કપાત ₹
+            <input id="fDed" type="number" min="0" step="any" value="0" oninput="calcF()">
+          </label>
+          <label class="field gstfield hide">GST દર %
+            <input id="fVat" type="number" value="0" min="0" step=".01" oninput="calcF()">
+          </label>
+          <label class="field">ચૂકવણી સ્થિતિ
+            <select id="fPayStatus" onchange="syncFarmerPaid()">
+              <option value="due">બાકી (Due)</option>
+              <option value="paid">ચૂકવેલ (Paid)</option>
+            </select>
+          </label>
+          <label class="field">ચૂકવેલ રકમ ₹
+            <input id="fPaid" type="number" min="0" step=".01" value="0" oninput="calcFarmerDue()">
+          </label>
+          <label class="field">ચુકવણી માધ્યમ
+            <select id="fPayMode">
+              <option value="cash">રોકડ (Cash)</option>
+              <option value="bank">બેંક (Bank)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="total">
+          માલ કુલ રકમ: ₹ <b id="fBase">0.00</b><br>
+          GST રકમ: ₹ <b id="fTax">0.00</b><br>
+          ખેડૂતને ચૂકવવાપાત્ર કુલ રકમ: ₹ <b id="fTotal">0.00</b>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn green" onclick="saveF()">💾 ડેટાબેઝમાં બિલ સેવ કરો</button>
+          <button type="button" class="btn light" onclick="newF()">🔄 નવું બિલ સાફ કરો</button>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="card">
+        <h3><span>📋</span> તાજેતરના ખેડૂત બિલો (Database History)</h3>
+        <div class="history-search-bar">
+          <input type="search" placeholder="🔍 ખેડૂત બિલ શોધો (નંબર, નામ, ગામ, રકમ)..." oninput="filterList('fHistory', this.value)">
+        </div>
+        <div id="fHistory">
+          {% for b in farmer_bills %}
+          <div class="rowitem">
+            <span>
+              <b>#{{ b.bill_no }}</b> · 📅 {{ b.date|date:"d/m/Y" }} · <b>{{ b.farmer_name }}</b> · {{ b.village|default:"—" }} ·
+              <span class="tag {% if b.payment_status == 'paid' %}greenText{% else %}redText{% endif %}" style="background: {% if b.payment_status == 'paid' %}#ecfeff{% else %}#fff1f2{% endif %}; border: 1px solid {% if b.payment_status == 'paid' %}#a5f3fc{% else %}#ffe4e6{% endif %};">
+                {{ b.get_payment_status_display }}
+              </span> ·
+              <b style="font-size: 15px;">₹{{ b.total_amount }}</b>
+            </span>
+            <span>
+              <button class="btn outline smallbtn" onclick="openPrint('{% url 'billing:print_farmer_bill' b.id %}')">🖨️ પ્રિન્ટ</button>
+              <button class="btn red smallbtn" onclick="delF({{ b.id }})">🗑️ ડિલીટ</button>
+            </span>
+          </div>
+          {% empty %}
+          <p class="hint">કોઈ ખેડૂત બિલ હજુ નોંધાયેલ નથી.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TRADER BILL TAB -->
+    <section id="trader" class="tab">
+      <div class="card">
+        <h2><span>🏪</span> વેપારી વેચાણ બિલ બનાવવું</h2>
+        <div class="grid">
+          <label class="field">બિલ બનાવવાની રીત
+            <select id="tMode" onchange="toggleTraderMode()">
+              <option value="auto">ખેડૂત બિલ પરથી ઓટોમેટિક (Automatic)</option>
+              <option value="manual">મેન્યુઅલ એન્ટ્રી (Manual)</option>
+            </select>
+          </label>
+          <label class="field">પેઢીનું નામ
+            <input id="tFirm" value="{{ st.firm_name }}">
+          </label>
+          <label class="field">વેપારી પસંદ કરો
+            <select id="tName" onchange="loadPicks()">
+              <option value="">-- વેપારી પસંદ કરો --</option>
+              {% for t in traders %}
+              <option value="{{ t.name }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="field">બિલ નંબર
+            <input id="tNo" value="{{ next_tb_no }}">
+          </label>
+          <label class="field">તારીખ
+            <input id="tDate" type="date" value="{{ today }}">
+          </label>
+          <label class="field">બિલ પ્રકાર
+            <select id="tKind" onchange="toggleGST()">
+              <option value="કાચું">કાચું બિલ</option>
+              <option value="GST">GST બિલ</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card" id="autoTraderCard">
+        <h3><span>🔍</span> ખેડૂત બિલમાંથી આ વેપારી માટે આવેલ માલ પસંદ કરો</h3>
+        <div id="picks" class="hint">પહેલા ઉપરથી વેપારી પસંદ કરો.</div>
+      </div>
+
+      <div class="card">
+        <h3><span>📦</span> વેપારી માલ વિગત</h3>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left;">માલની જાત</th>
+                <th>ખેડૂતનું નામ</th>
+                <th>બેગ</th>
+                <th>વજન (કિ.ગ્રા.)</th>
+                <th>ભાવ પ્રતિ મણ</th>
+                <th style="text-align: right;">કુલ રકમ ₹</th>
+                <th style="width: 50px;"></th>
+              </tr>
+            </thead>
+            <tbody id="tRows"></tbody>
+          </table>
+        </div>
+        <div class="actions hide" id="manualTraderActions">
+          <button type="button" class="btn" onclick="addTRow()">+ માલ ઉમેરો (Manual Row)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="grid">
+          <label class="field">
+            <span class="field-label">કમિશન ({{ st.commission_rate|default:1.5 }}%) ₹</span>
+            <input id="tComm" readonly>
+          </label>
+          <label class="field">
+            <span class="field-label">માર્કેટ ફી (બેગ × ₹<span id="marketRate">{{ st.market_fee_rate|default:3 }}</span>) ₹</span>
+            <input id="tMarket" readonly>
+          </label>
+          <label class="field">
+            <span class="field-label">બારદાન (બેગ × ₹<span id="tBardRate">{{ st.bardan_rate|default:15 }}</span>) ₹</span>
+            <input id="tBard" readonly>
+          </label>
+          <label class="field">મજૂરી ₹
+            <input id="tLab" type="number" min="0" step="any" value="0" oninput="calcT()">
+          </label>
+          <label class="field">ભાડું ₹
+            <input id="tRent" type="number" min="0" step="any" value="0" oninput="calcT()">
+          </label>
+          <label class="field gstfield hide">GST દર %
+            <input id="tVat" type="number" value="0" step=".01" oninput="calcT()">
+          </label>
+        </div>
+
+        <div class="total">
+          માલ કુલ: ₹ <b id="tBase">0.00</b><br>
+          GST: ₹ <b id="tTax">0.00</b><br>
+          વેપારી બિલ કુલ રકમ: ₹ <b id="tTotal">0.00</b>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn green" onclick="saveT()">💾 વેપારી બિલ સેવ કરો</button>
+          <button type="button" class="btn light" onclick="newT()">🔄 નવું બિલ</button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="card">
+        <h3><span>📋</span> સેવ કરેલા વેપારી બિલ</h3>
+        <div class="history-search-bar">
+          <input type="search" placeholder="🔍 વેપારી બિલ શોધો (નંબર, વેપારી નામ, રકમ)..." oninput="filterList('tHistory', this.value)">
+        </div>
+        <div id="tHistory">
+          {% for b in trader_bills %}
+          <div class="rowitem">
+            <span>
+              <b>#{{ b.bill_no }}</b> · 📅 {{ b.date|date:"d/m/Y" }} · <b>{{ b.trader_name }}</b> · {{ b.get_mode_display }} ·
+              <b style="font-size: 15px;">₹{{ b.total_amount }}</b>
+            </span>
+            <span>
+              <button class="btn outline smallbtn" onclick="openPrint('{% url 'billing:print_trader_bill' b.id %}')">🖨️ પ્રિન્ટ</button>
+              <button class="btn red smallbtn" onclick="delT({{ b.id }})">🗑️ ડિલીટ</button>
+            </span>
+          </div>
+          {% empty %}
+          <p class="hint">કોઈ વેપારી બિલ નથી.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. GST BILL TAB -->
+    <section id="gst" class="tab">
+      <div class="card">
+        <h2><span>🧾</span> GST પાકું ઇન્વોઇસ (Tax Invoice)</h2>
+        <div class="grid">
+          <label class="field">પેઢીનું નામ<input id="gFirm" value="{{ st.firm_name }}"></label>
+          <label class="field">પેઢીનું સરનામું<input id="gFirmAddress" value="{{ st.firm_address }}"></label>
+          <label class="field">પેઢીનો GST નંબર<input id="gFirmGST" value="{{ st.firm_gst }}"></label>
+          <label class="field">GST બિલ નંબર<input id="gNo" value="{{ next_gst_no }}"></label>
+          <label class="field">તારીખ<input id="gDate" type="date" value="{{ today }}"></label>
+          <label class="field">ગ્રાહક / વેપારીનું નામ<input id="gParty" placeholder="નામ"></label>
+          <label class="field">ગ્રાહકનું સરનામું<input id="gPartyAddress" placeholder="સરનામું"></label>
+          <label class="field">ગ્રાહકનો GST નંબર<input id="gPartyGST" placeholder="GSTIN"></label>
+          <label class="field">માલનો પ્રકાર<input id="gDesc" value="તમાકુ (Tobacco)"></label>
+          <label class="field">બેગ<input id="gBags" type="number" min="0" step="any" value="0" oninput="calcG()"></label>
+          <label class="field">વજન (કિ.ગ્રા.)<input id="gWeight" type="number" min="0" step=".01" value="0" oninput="calcG()"></label>
+          <label class="field">ભાવ પ્રતિ મણ ₹<input id="gPrice" type="number" min="0" step=".01" value="0" oninput="calcG()"></label>
+          <label class="field">GST દર %<input id="gRate" type="number" value="5" min="0" step=".01" oninput="calcG()"></label>
+          <label class="field">GST પ્રકાર
+            <select id="gTaxType" onchange="calcG()">
+              <option value="cgst">CGST + SGST (ગુજરાત રાજ્ય)</option>
+              <option value="igst">IGST (રાજ્ય બહાર)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="total">
+          માલની કુલ રકમ: ₹ <b id="gBase">0.00</b><br>
+          કુલ GST: ₹ <b id="gTax">0.00</b><br>
+          CGST: ₹ <b id="gCGST">0.00</b> | IGST: ₹ <b id="gIGST">0.00</b><br>
+          કુલ ઇન્વોઇસ રકમ: ₹ <b id="gTotal">0.00</b>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn green" onclick="saveG()">💾 GST બિલ સેવ કરો</button>
+          <button type="button" class="btn light" onclick="newG()">🔄 નવું</button>
+        </div>
+      </div>
+
+      <!-- GST History -->
+      <div class="card">
+        <h3><span>📋</span> સેવ કરેલા GST ઇન્વોઇસ</h3>
+        <div class="history-search-bar">
+          <input type="search" placeholder="🔍 GST બિલ શોધો (નંબર, પાર્ટી નામ, GSTIN, રકમ)..." oninput="filterList('gHistory', this.value)">
+        </div>
+        <div id="gHistory">
+          {% for b in gst_bills %}
+          <div class="rowitem">
+            <span>
+              <b>#{{ b.bill_no }}</b> · 📅 {{ b.date|date:"d/m/Y" }} · <b>{{ b.party_name }}</b> · <b>₹{{ b.total_amount }}</b>
+            </span>
+            <span>
+              <button class="btn outline smallbtn" onclick="openPrint('{% url 'billing:print_gst_bill' b.id %}')">🖨️ પ્રિન્ટ</button>
+              <button class="btn red smallbtn" onclick="delG({{ b.id }})">🗑️ ડિલીટ</button>
+            </span>
+          </div>
+          {% empty %}
+          <p class="hint">હજુ કોઈ GST બિલ નથી.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. LEDGER TAB -->
+    <section id="ledger" class="tab">
+      <div class="card">
+        <h2><span>📖</span> ખતાવહી અને બાકી રકમ હિસાબ (Ledger & Dues)</h2>
+        <div class="grid">
+          <label class="field">તારીખથી (From)<input id="lFrom" type="date"></label>
+          <label class="field">તારીખ સુધી (To)<input id="lTo" type="date"></label>
+          <label class="field">પાર્ટી પ્રકાર
+            <select id="ledgerFilterType">
+              <option value="all">બધા (ખેડૂત & વેપારી)</option>
+              <option value="farmer">ખેડૂત (Farmer)</option>
+              <option value="trader">વેપારી (Trader)</option>
+            </select>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="renderLedger()">🔍 હિસાબ ફિલ્ટર કરો</button>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr;">
+        <!-- Quick Farmer Payment -->
+        <div class="card">
+          <h3><span>🌾</span> ખેડૂત ચુકવણી / બાકી</h3>
+          <div class="field" style="margin-bottom: 12px;">
+            <label>ખેડૂત પસંદ કરો
+              <select id="lpFarmer" onchange="loadFarmerDue()">
+                <option value="">-- ખેડૂત પસંદ કરો --</option>
+                {% for f in farmers %}
+                <option value="{{ f }}">{{ f }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+          <div class="grid">
+            <label class="field">તારીખ<input id="lpDate" type="date" value="{{ today }}"></label>
+            <label class="field">ચૂકવેલ રકમ ₹<input id="lpAmount" type="number" min="0" step=".01" placeholder="0.00"></label>
+            <label class="field">માધ્યમ
+              <select id="lpMode">
+                <option value="cash">રોકડ (Cash)</option>
+                <option value="bank">બેંક (Bank)</option>
+              </select>
+            </label>
+          </div>
+          <div class="total" style="text-align: left; margin: 12px 0 10px;">
+            ખેડૂતનું હાલનું બાકી: ₹ <b id="lpDue" class="redText">0.00</b>
+          </div>
+          <div class="actions">
+            <button class="btn green" onclick="saveFarmerPayment()">+ ખેડૂતને ચુકવણી નોંધો</button>
+          </div>
+        </div>
+
+        <!-- Quick Trader Payment -->
+        <div class="card">
+          <h3><span>🏪</span> વેપારી પાસેથી આવેલ ચુકવણી / બાકી</h3>
+          <div class="field" style="margin-bottom: 12px;">
+            <label>વેપારી પસંદ કરો
+              <select id="tpTrader" onchange="loadTraderDue()">
+                <option value="">-- વેપારી પસંદ કરો --</option>
+                {% for t in traders %}
+                <option value="{{ t.name }}">{{ t.name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+          <div class="grid">
+            <label class="field">તારીખ<input id="tpDate" type="date" value="{{ today }}"></label>
+            <label class="field">આવેલ રકમ ₹<input id="tpAmount" type="number" min="0" step=".01" placeholder="0.00"></label>
+            <label class="field">માધ્યમ
+              <select id="tpMode">
+                <option value="cash">રોકડ (Cash)</option>
+                <option value="bank">બેંક (Bank)</option>
+              </select>
+            </label>
+          </div>
+          <div class="total" style="text-align: left; margin: 12px 0 10px;">
+            વેપારીનું હાલનું બાકી: ₹ <b id="tpDue" class="redText">0.00</b>
+          </div>
+          <div class="actions">
+            <button class="btn green" onclick="saveTraderPayment()">+ વેપારી ચુકવણી નોંધો</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Jama/Udhar Entry -->
+      <div class="card">
+        <h3><span>📝</span> સામાન્ય જમા / ઉધાર નોંધણી</h3>
+        <div class="grid">
+          <label class="field">તારીખ<input id="lDate" type="date" value="{{ today }}"></label>
+          <label class="field">પાર્ટી / ખાતાનું નામ<input id="lParty" placeholder="નામ"></label>
+          <label class="field">વિગત<input id="lDesc" placeholder="વિગતવાર નોંધ"></label>
+          <label class="field">પ્રકાર
+            <select id="lType">
+              <option value="jama">જમા (આવક)</option>
+              <option value="udhar">ઉધાર (ચૂકવણી)</option>
+            </select>
+          </label>
+          <label class="field">રકમ ₹<input id="lAmount" type="number" min="0" step=".01"></label>
+          <label class="field">માધ્યમ
+            <select id="lAccount">
+              <option value="cash">રોકડ (Cash)</option>
+              <option value="bank">બેંક (Bank)</option>
+            </select>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn green" onclick="saveL()">ખતાવહીમાં ઉમેરો</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span>📊</span> ખાતાવહી સારાંશ અને પાર્ટી બાકી લિસ્ટ</h3>
+        <div id="ledgerRows"></div>
+      </div>
+
+      <div class="card">
+        <h3><span>📜</span> સામાન્ય ખાતાવહી નોંધણી લિસ્ટ</h3>
+        <div class="history-search-bar">
+          <input type="search" placeholder="🔍 ખાતાવહી નોંધ શોધો (પાર્ટી નામ, વિગત, રકમ)..." oninput="filterList('lHistory', this.value)">
+        </div>
+        <div id="lHistory">
+          {% for l in ledger_entries %}
+          <div class="rowitem">
+            <span>📅 {{ l.date|date:"d/m/Y" }} · <b>{{ l.party_name }}</b> · {{ l.description }} ·
+              <b class="{% if l.entry_type == 'jama' %}greenText{% else %}redText{% endif %}">
+                {{ l.get_entry_type_display }} ₹{{ l.amount }}
+              </b> · {{ l.get_payment_mode_display }}
+            </span>
+            <button class="btn red smallbtn" onclick="delL({{ l.id }})">ડિલીટ</button>
+          </div>
+          {% empty %}
+          <p class="hint">હજુ કોઈ નોંધ નથી.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. DAILY HISAB TAB -->
+    <section id="daily" class="tab">
+      <div class="card">
+        <h2><span>📅</span> રોજનો હિસાબ અને રોકડમેળ (Daily Rozmel)</h2>
+        <div class="grid" style="max-width: 320px;">
+          <label class="field">તારીખ પસંદ કરો
+            <input id="dDate" type="date" value="{{ today }}" onchange="renderDaily()">
+          </label>
+        </div>
+      </div>
+
+      <div id="dailyStats" class="summary"></div>
+
+      <div class="card">
+        <h3><span>📑</span> આજની આવક / ચુકવણી / ખર્ચ વિગત</h3>
+        <div id="dailyList"></div>
+      </div>
+
+      <div class="card">
+        <h3><span>💰</span> હાલનું લાઈવ બેલેન્સ (Current Balance)</h3>
+        <div id="balances" class="summary"></div>
+      </div>
+    </section>
+
+    <!-- 6. EXPENSE TAB -->
+    <section id="expense" class="tab">
+      <div class="card">
+        <h2><span>💸</span> ખર્ચ નોંધણી (Expense Book)</h2>
+        <div class="grid">
+          <label class="field">તારીખ<input id="eDate" type="date" value="{{ today }}"></label>
+          <label class="field">ખર્ચનું નામ<input id="eName" placeholder="ચા-નાસ્તો, સ્ટેશનરી, વાહન"></label>
+          <label class="field">વિગત<input id="eDesc" placeholder="વિગતવાર વર્ણન"></label>
+          <label class="field">રકમ ₹<input id="eAmount" type="number" min="0" step=".01"></label>
+          <label class="field">ચૂકવણી માધ્યમ
+            <select id="eAccount">
+              <option value="cash">રોકડ (Cash)</option>
+              <option value="bank">બેંક (Bank)</option>
+            </select>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn green" onclick="saveE()">💾 ખર્ચ સેવ કરો</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span>📋</span> ખર્ચની યાદી</h3>
+        <div class="history-search-bar">
+          <input type="search" placeholder="🔍 ખર્ચ શોધો (નામ, વિગતવાર વર્ણન, રકમ)..." oninput="filterList('eHistory', this.value)">
+        </div>
+        <div id="eHistory">
+          {% for e in expenses %}
+          <div class="rowitem">
+            <span>📅 {{ e.date|date:"d/m/Y" }} · <b>{{ e.title }}</b> · {{ e.description|default:"—" }} · <b class="redText">₹{{ e.amount }}</b> · {{ e.get_payment_mode_display }}</span>
+            <button class="btn red smallbtn" onclick="delE({{ e.id }})">ડિલીટ</button>
+          </div>
+          {% empty %}
+          <p class="hint">હજુ કોઈ ખર્ચ નોંધાયેલ નથી.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. SETTINGS TAB -->
+    <section id="settings" class="tab">
+      <div class="card">
+        <h2><span>⚙️</span> પેઢી સેટિંગ અને દરો (Settings)</h2>
+        <div class="grid">
+          <label class="field">પેઢીનું નામ<input id="sFirm" value="{{ st.firm_name }}"></label>
+          <label class="field">બારદાનની કિંમત (દર બેગ) ₹<input id="sBard" type="number" value="{{ st.bardan_rate|default:15 }}" min="0" step=".01"></label>
+          <label class="field">માર્કેટ ફી (દર બેગ) ₹<input id="sMarket" type="number" value="{{ st.market_fee_rate|default:3 }}" min="0" step=".01"></label>
+          <label class="field">કમિશન %<input id="sComm" type="number" value="{{ st.commission_rate|default:1.5 }}" min="0" step=".01"></label>
+          <label class="field">પ્રારંભિક રોકડ બેલેન્સ ₹<input id="sCash" type="number" value="{{ st.initial_cash|default:0 }}" step=".01"></label>
+          <label class="field">પ્રારંભિક બેંક બેલેન્સ ₹<input id="sBank" type="number" value="{{ st.initial_bank|default:0 }}" step=".01"></label>
+          <label class="field">પેઢીનું સરનામું<input id="sFirmAddress" value="{{ st.firm_address }}"></label>
+          <label class="field">પેઢીનો GST નંબર<input id="sFirmGST" value="{{ st.firm_gst }}"></label>
+          <label class="field">બેંકનું નામ<input id="sBankName" value="{{ st.bank_name }}"></label>
+          <label class="field">બેંક ખાતા નંબર<input id="sBankAccount" value="{{ st.bank_account }}"></label>
+          <label class="field">GST બિલ પર સહી કરનારનું નામ<input id="sSignName" value="{{ st.sign_name }}"></label>
+          <label class="field">સહી કરનારનો GST નંબર<input id="sSignGST" value="{{ st.sign_gst }}"></label>
+        </div>
+        <div class="actions">
+          <button class="btn green" onclick="saveSettings()">💾 સેટિંગ સેવ કરો</button>
+        </div>
+      </div>
+
+      <!-- Trader Master Management -->
+      <div class="card">
+        <h3><span>👥</span> વેપારી માસ્ટર લિસ્ટ (Traders Master)</h3>
+        <div class="grid" style="grid-template-columns: 1fr auto; max-width: 520px; margin-bottom: 14px;">
+          <input id="newName" placeholder="નવું વેપારી નામ ઉમેરો">
+          <button class="btn" onclick="addTrader()">+ નામ ઉમેરો</button>
+        </div>
+        <div id="names">
+          {% for t in traders %}
+          <div class="rowitem">
+            <span>🏪 <b>{{ t.name }}</b> {% if t.mobile %}· 📞 {{ t.mobile }}{% endif %}</span>
+            <button class="btn red smallbtn" onclick="delTrader({{ t.id }})">ડિલીટ</button>
+          </div>
+          {% empty %}
+          <p class="hint">કોઈ વેપારી ઉમેરેલ નથી.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+  </main>
+    </div><!-- /.main-wrapper -->
+  </div><!-- /.app-layout -->
+
+  <div id="toast"></div>
+
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
