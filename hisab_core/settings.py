@@ -75,12 +75,34 @@ WSGI_APPLICATION = 'hisab_core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import os
+import shutil
+
+# On Vercel / AWS Lambda Serverless, /var/task is read-only. Only /tmp is writable.
+IS_VERCEL = 'VERCEL' in os.environ or os.environ.get('VERCEL_ENV') or bool(os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+
+if IS_VERCEL:
+    tmp_db = Path('/tmp/db.sqlite3')
+    if not tmp_db.exists():
+        src_db = BASE_DIR / 'db.sqlite3'
+        if src_db.exists():
+            try:
+                shutil.copy2(src_db, tmp_db)
+            except Exception:
+                pass
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': tmp_db,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
