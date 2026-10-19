@@ -516,17 +516,29 @@ body {
   gap: 6px;
 }
 
-/* Topbar Financial Balance Cards */
+/* Topbar Layout & Groups */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .header-badges {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .badge-card {
@@ -882,6 +894,20 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 16px 18px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+.add-trader-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  max-width: 520px;
+  margin-bottom: 14px;
 }
 
 .field {
@@ -1344,12 +1370,22 @@ td input, td select {
 }
 
 /* ==========================================================================
-   Responsive Breakpoints
+   Responsive Breakpoints & Mobile Optimization
    ========================================================================== */
 
 @media (max-width: 1200px) {
   .pro-kpi-banner {
     grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 992px) {
+  .wrap {
+    padding: 20px 18px 50px;
+  }
+  .card {
+    padding: 20px 18px;
   }
 }
 
@@ -1358,12 +1394,13 @@ td input, td select {
   .sidebar {
     transform: translateX(-100%);
     width: 280px !important;
+    max-width: 85vw !important;
     z-index: 9999;
   }
 
   .sidebar.open {
     transform: translateX(0) !important;
-    box-shadow: 4px 0 32px rgba(3, 10, 22, 0.5);
+    box-shadow: 4px 0 32px rgba(3, 10, 22, 0.6);
   }
 
   .sidebar-backdrop.active {
@@ -1384,19 +1421,41 @@ td input, td select {
     display: none !important;
   }
 
+  /* Clean responsive Mobile Topbar with zero horizontal overflow */
   .topbar {
     height: auto;
-    padding: 12px 16px;
+    padding: 10px 14px;
+    display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .topbar-left {
+    order: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
   }
 
   .topbar-right {
-    width: 100%;
-    justify-content: space-between;
+    order: 2;
+    display: contents; /* Header actions on Row 1, badges on full-width Row 2 */
+  }
+
+  .header-actions {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .header-badges {
+    order: 3;
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1418,37 +1477,200 @@ td input, td select {
 
   .pro-kpi-banner {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .wrap {
-    padding: 16px 12px 48px;
+    padding: 14px 12px 48px;
   }
 
   .card {
-    padding: 18px 16px;
+    padding: 18px 14px;
     border-radius: var(--radius-md);
+    margin-bottom: 16px;
   }
 
   .card h2 {
-    font-size: 17.5px;
+    font-size: 17px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
   }
 
   .card h3 {
-    font-size: 15.5px;
+    font-size: 15px;
+    margin-bottom: 12px;
   }
 
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  /* 16px font-size prevents iOS automatic zoom on focus */
+  input, select, textarea, .field input, .field select, .field textarea {
+    font-size: 16px !important;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .actions .btn {
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+    font-size: 14.5px;
+  }
+
+  /* Table Smooth Scrolling on Mobile */
+  .tablewrap {
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-sm);
+    box-shadow: inset -6px 0 6px -6px rgba(0, 0, 0, 0.2);
+  }
+
+  .tablewrap table {
+    min-width: 680px;
+  }
+
+  .tablewrap th, .tablewrap td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .tablewrap td input, .tablewrap td select {
+    font-size: 14px !important;
+    padding: 6px 8px;
+    min-height: 36px;
+  }
+
+  .rowitem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .rowitem > span:first-child {
+    width: 100%;
+    word-break: break-word;
+    line-height: 1.5;
+  }
+
+  .rowitem > span:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .rowitem .btn {
+    flex: 1;
+    max-width: 130px;
   }
 
   .total {
-    font-size: 14.5px;
-    padding: 14px 18px;
+    font-size: 14px;
+    padding: 14px 16px;
+    line-height: 1.7;
+    text-align: left;
   }
 
   .total b {
+    font-size: 17.5px;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat {
+    padding: 14px 14px;
+  }
+
+  .stat span {
+    font-size: 11px;
+  }
+
+  .stat b {
     font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .breadcrumb-prefix {
+    display: none;
+  }
+
+  .breadcrumb-active {
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 170px;
+  }
+
+  .user-chip-role {
+    display: none;
+  }
+
+  .user-chip {
+    padding: 4px 8px;
+    gap: 5px;
+  }
+
+  .btn-topbar-logout .logout-text {
+    display: none;
+  }
+
+  .btn-topbar-logout {
+    padding: 7px 10px;
+  }
+
+  .theme-toggle-btn .theme-label {
+    display: none;
+  }
+
+  .theme-toggle-btn {
+    padding: 7px 10px;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .add-trader-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .add-trader-grid .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .topbar {
+    padding: 8px 10px;
+  }
+  .breadcrumb-active {
+    max-width: 130px;
+    font-size: 14px;
+  }
+  .card {
+    padding: 14px 10px;
+  }
+  .header-badges {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1604,7 +1826,7 @@ td input, td select {
   opacity: 1;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .header-user-menu .user-chip {
     display: none;
   }

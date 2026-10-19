@@ -11,7 +11,7 @@
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.5">
   <script>
     window.appSettings = {
       firm: "{{ st.firm_name|escapejs }}",
@@ -166,38 +166,40 @@
             <div class="badge-card badge-cash">
               <div class="badge-icon">💵</div>
               <div>
-                <span class="badge-label">રોકડ બેલેન્સ (Cash)</span>
+                <span class="badge-label">રોકડ (Cash)</span>
                 <span class="badge-val">₹{{ cash_balance|floatformat:2 }}</span>
               </div>
             </div>
             <div class="badge-card badge-bank">
               <div class="badge-icon">🏦</div>
               <div>
-                <span class="badge-label">બેંક બેલેન્સ (Bank)</span>
+                <span class="badge-label">બેંક (Bank)</span>
                 <span class="badge-val">₹{{ bank_balance|floatformat:2 }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Modern Theme Toggle (Dark / Light) -->
-          <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="થીમ બદલો (Dark / Light Theme)">
-            <span class="theme-icon" id="themeIcon">🌙</span>
-            <span class="theme-label" id="themeLabel">Dark</span>
-          </button>
+          <div class="header-actions">
+            <!-- Modern Theme Toggle (Dark / Light) -->
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="થીમ બદલો (Dark / Light Theme)">
+              <span class="theme-icon" id="themeIcon">🌙</span>
+              <span class="theme-label" id="themeLabel">Dark</span>
+            </button>
 
-          <!-- User Profile & Logout -->
-          <div class="header-user-menu">
-            <div class="user-chip" title="લૉગિન થયેલ એકાઉન્ટ: {{ request.user.username }}">
-              <span class="user-chip-icon">👤</span>
-              <div class="user-chip-details">
-                <span class="user-chip-name">{{ request.user.first_name|default:request.user.username|title }}</span>
-                <span class="user-chip-role">{% if request.user.is_superuser %}એડમિન{% else %}યુઝર{% endif %}</span>
+            <!-- User Profile & Logout -->
+            <div class="header-user-menu">
+              <div class="user-chip" title="લૉગિન થયેલ એકાઉન્ટ: {{ request.user.username }}">
+                <span class="user-chip-icon">👤</span>
+                <div class="user-chip-details">
+                  <span class="user-chip-name">{{ request.user.first_name|default:request.user.username|title }}</span>
+                  <span class="user-chip-role">{% if request.user.is_superuser %}એડમિન{% else %}યુઝર{% endif %}</span>
+                </div>
               </div>
+              <a href="{% url 'billing:logout' %}" class="btn-topbar-logout" title="લૉગ આઉટ કરો">
+                <span>🚪</span>
+                <span class="logout-text">લૉગ આઉટ</span>
+              </a>
             </div>
-            <a href="{% url 'billing:logout' %}" class="btn-topbar-logout" title="લૉગ આઉટ કરો">
-              <span>🚪</span>
-              <span class="logout-text">લૉગ આઉટ</span>
-            </a>
           </div>
         </div>
       </header>
@@ -609,7 +611,7 @@
         </div>
       </div>
 
-      <div class="grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="grid grid-2">
         <!-- Quick Farmer Payment -->
         <div class="card">
           <h3><span>🌾</span> ખેડૂત ચુકવણી / બાકી</h3>
@@ -815,7 +817,7 @@
       <!-- Trader Master Management -->
       <div class="card">
         <h3><span>👥</span> વેપારી માસ્ટર લિસ્ટ (Traders Master)</h3>
-        <div class="grid" style="grid-template-columns: 1fr auto; max-width: 520px; margin-bottom: 14px;">
+        <div class="add-trader-grid">
           <input id="newName" placeholder="નવું વેપારી નામ ઉમેરો">
           <button class="btn" onclick="addTrader()">+ નામ ઉમેરો</button>
         </div>

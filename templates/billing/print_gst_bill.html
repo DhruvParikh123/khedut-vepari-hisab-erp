@@ -2,29 +2,52 @@
 <html lang="gu">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GST ઇન્વોઇસ #{{ bill.bill_no }}</title>
   <style>
-    body { font-family: Arial, "Noto Sans Gujarati", sans-serif; margin: 0; padding: 25px; color: #111; font-size: 14px; }
-    .gst-invoice { max-width: 850px; margin: auto; }
-    .gst-head { display: flex; justify-content: space-between; border: 1px solid #222; padding: 12px; margin-top: 12px; }
-    .gst-party { border: 1px solid #222; border-top: 0; padding: 12px; }
-    .gst-invoice table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, "Noto Sans Gujarati", sans-serif; margin: 0; padding: 25px; color: #111; font-size: 14px; background: #f8fafc; }
+    .gst-invoice { max-width: 850px; width: 100%; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .gst-head { display: flex; justify-content: space-between; border: 1px solid #222; padding: 12px; margin-top: 12px; gap: 10px; }
+    .gst-party { border: 1px solid #222; border-top: 0; padding: 12px; line-height: 1.6; }
+    .tablewrap-print { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
+    .gst-invoice table { width: 100%; border-collapse: collapse; min-width: 520px; }
     .gst-invoice td, .gst-invoice th { border: 1px solid #222; padding: 8px; text-align: center; }
     .gst-invoice th { background: #f5f5f5; }
-    .gst-bottom { display: flex; justify-content: space-between; margin-top: 45px; border-top: 1px solid #222; padding-top: 18px; }
-    .gst-invoice h2 { letter-spacing: 0.5px; margin: 0; text-align: center; }
-    .btn-print { background: #0284c7; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 6px; margin-bottom: 15px; font-weight: 600; }
+    .gst-summary-table { margin-top: 10px; width: 350px; margin-left: auto; min-width: auto !important; }
+    .gst-bottom { display: flex; justify-content: space-between; margin-top: 45px; border-top: 1px solid #222; padding-top: 18px; gap: 20px; }
+    .gst-invoice h2 { letter-spacing: 0.5px; margin: 0; text-align: center; font-size: 22px; }
+    .print-actions { text-align: center; margin-bottom: 18px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .btn-print { background: #0284c7; color: white; border: none; padding: 10px 22px; font-size: 15px; cursor: pointer; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-print:hover { background: #0369a1; }
+    .btn-close { background: #475569; }
+    .btn-close:hover { background: #334155; }
+
+    @media screen and (max-width: 600px) {
+      body { padding: 12px 8px; }
+      .gst-invoice { padding: 12px 8px; }
+      .gst-invoice h2 { font-size: 19px; }
+      .gst-head { flex-direction: column; gap: 10px; }
+      .gst-head > div:last-child { text-align: left !important; }
+      .gst-summary-table { width: 100%; }
+      .gst-bottom { flex-direction: column; gap: 24px; text-align: center; }
+      .gst-bottom > div:last-child { text-align: center !important; }
+      .print-actions { width: 100%; }
+      .btn-print { width: 100%; justify-content: center; }
+    }
+
     @media print {
       .noprint { display: none !important; }
-      body { padding: 0; }
-      .gst-invoice { max-width: none; }
+      body { padding: 0; background: #ffffff; }
+      .gst-invoice { max-width: none; width: 100%; padding: 0; box-shadow: none; }
+      .gst-invoice table { min-width: 0; }
     }
   </style>
 </head>
 <body>
-  <div style="text-align: center;" class="noprint">
+  <div class="print-actions noprint">
     <button class="btn-print" onclick="window.print()">🖨️ પ્રિન્ટ કરો (Print GST Invoice)</button>
-    <button class="btn-print" style="background:#555;" onclick="window.close()">બંધ કરો (Close)</button>
+    <button class="btn-print btn-close" onclick="window.close()">✕ બંધ કરો (Close)</button>
   </div>
 
   <div class="gst-invoice">
@@ -52,6 +75,7 @@
       <b>GSTIN:</b> {{ bill.party_gst|default:"—" }}
     </div>
 
+    <div class="tablewrap-print">
     <table>
       <thead>
         <tr>
@@ -72,8 +96,9 @@
         </tr>
       </tbody>
     </table>
+    </div>
 
-    <table style="margin-top: 10px; width: 60%; margin-left: auto;">
+    <table class="gst-summary-table">
       <tr>
         <td style="text-align: left;">માલ કુલ રકમ</td>
         <td style="text-align: right;">₹{{ bill.base_amount }}</td>

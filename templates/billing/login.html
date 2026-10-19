@@ -369,24 +369,40 @@
       text-decoration: underline;
     }
 
-    /* Floating Theme Toggle */
+    /* Header Bar & Theme Toggle */
+    .auth-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      width: 100%;
+    }
+    .auth-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #67e8f9;
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid rgba(103, 232, 249, 0.25);
+      letter-spacing: 0.3px;
+    }
     .auth-theme-toggle {
-      position: fixed;
-      top: 18px;
-      right: 20px;
-      z-index: 100;
       background: rgba(11, 29, 54, 0.75);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(103, 232, 249, 0.25);
       border-radius: 999px;
-      padding: 7px 14px;
+      padding: 6px 14px;
       color: #f8fafc;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       transition: all 0.2s ease;
       box-shadow: 0 4px 14px rgba(3, 10, 22, 0.4);
     }
@@ -451,29 +467,103 @@
       color: #0f172a;
     }
 
+    [data-theme="light"] .auth-brand-badge {
+      background: rgba(14, 165, 233, 0.1);
+      border-color: rgba(14, 165, 233, 0.25);
+      color: #0369a1;
+    }
+
     @media (max-width: 480px) {
+      .login-body {
+        padding: 24px 12px;
+      }
+      .auth-header-bar {
+        margin-bottom: 12px;
+      }
+      .auth-theme-toggle {
+        padding: 5px 11px;
+        font-size: 11.5px;
+      }
+      .auth-brand-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+      .login-wrapper {
+        max-width: 100%;
+      }
       .login-card {
-        padding: 28px 20px;
-        border-radius: 16px;
+        padding: 24px 16px;
+        border-radius: 18px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .login-brand {
+        margin-bottom: 18px;
+      }
+      .login-icon-box {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        margin-bottom: 10px;
       }
       .login-title {
-        font-size: 20px;
+        font-size: 18.5px;
+        line-height: 1.3;
+      }
+      .login-subtitle {
+        font-size: 12px;
+      }
+      .login-input {
+        font-size: 16px; /* Prevents auto iOS viewport zoom */
+        height: 46px;
+      }
+      .btn-login-submit {
+        height: 48px;
+        font-size: 15px;
+      }
+      .login-hint-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        text-align: center;
+      }
+      .btn-auto-fill {
+        width: 100%;
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .login-body {
+        padding: 18px 8px;
+      }
+      .login-card {
+        padding: 18px 12px;
+      }
+      .login-title {
+        font-size: 17px;
+      }
+      .form-options {
+        font-size: 11.5px;
       }
     }
   </style>
 </head>
 <body class="login-body">
 
-  <!-- Floating Theme Switcher -->
-  <button type="button" class="auth-theme-toggle" onclick="toggleAuthTheme()" title="થીમ બદલો (Dark / Light Theme)">
-    <span id="authThemeIcon">🌙</span>
-    <span id="authThemeLabel">Dark</span>
-  </button>
-
   <div class="ambient-orb ambient-orb-1"></div>
   <div class="ambient-orb ambient-orb-2"></div>
 
   <div class="login-wrapper">
+    <!-- Non-overlapping Clean Auth Header Bar -->
+    <div class="auth-header-bar">
+      <div class="auth-brand-badge">🌿 <span>ERP ઓથેન્ટિકેશન</span></div>
+      <button type="button" class="auth-theme-toggle" onclick="toggleAuthTheme()" title="થીમ બદલો (Dark / Light Theme)">
+        <span id="authThemeIcon">🌙</span>
+        <span id="authThemeLabel">Dark</span>
+      </button>
+    </div>
+
     <div class="login-card">
 
       <!-- Header & Firm Branding -->
@@ -562,9 +652,9 @@
       </form>
 
       <!-- Register Link Box -->
-      <div style="text-align: center; margin-top: 18px; font-size: 13.5px; color: #94a3b8; background: rgba(255,255,255,0.03); padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+      <div style="text-align: center; margin-top: 18px; font-size: 13.5px; color: #94a3b8; background: rgba(255,255,255,0.03); padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px;">
         <span>નવું એકાઉન્ટ બનાવવું છે?</span>
-        <a href="{% url 'billing:register' %}" style="color: #38bdf8; font-weight: 700; text-decoration: none; margin-left: 6px; display: inline-flex; align-items: center; gap: 4px;">
+        <a href="{% url 'billing:register' %}" style="color: #38bdf8; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
           <span>અહીં રજીસ્ટર કરો (Register)</span> ➔
         </a>
       </div>

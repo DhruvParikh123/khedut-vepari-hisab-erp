@@ -2,38 +2,61 @@
 <html lang="gu">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ખેડૂત બિલ #{{ bill.bill_no }}</title>
   <style>
-    body { font-family: Arial, "Noto Sans Gujarati", sans-serif; margin: 0; padding: 25px; color: #111; font-size: 14px; }
-    .bill-box { max-width: 800px; margin: auto; border: 2px solid #222; padding: 20px; border-radius: 6px; }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, "Noto Sans Gujarati", sans-serif; margin: 0; padding: 25px; color: #111; font-size: 14px; background: #f8fafc; }
+    .bill-box { max-width: 800px; width: 100%; margin: auto; border: 2px solid #222; padding: 20px; border-radius: 8px; background: #ffffff; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
     .top-header { text-align: center; border-bottom: 2px solid #222; padding-bottom: 12px; margin-bottom: 15px; }
     .top-header h1 { margin: 0 0 5px; font-size: 24px; color: #081528; }
     .top-header p { margin: 2px 0; color: #444; }
-    .bill-title { text-align: center; font-size: 18px; font-weight: bold; background: #f0f9ff; color: #0369a1; padding: 6px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #bae6fd; }
+    .bill-title { text-align: center; font-size: 18px; font-weight: bold; background: #f0f9ff; color: #0369a1; padding: 8px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #bae6fd; }
     .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     .meta-grid div { padding: 4px 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .tablewrap-print { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; min-width: 580px; }
     th, td { border: 1px solid #333; padding: 8px; text-align: center; }
     th { background: #f8fafc; color: #081528; }
     .text-left { text-align: left; }
     .text-right { text-align: right; }
     .totals-area { display: flex; justify-content: flex-end; margin-top: 10px; }
-    .totals-table { width: 350px; border-collapse: collapse; }
+    .totals-table { width: 350px; border-collapse: collapse; min-width: auto; }
     .totals-table td { padding: 6px 10px; border: 1px solid #999; }
     .totals-table tr.highlight td { background: #f0f9ff; font-weight: bold; font-size: 16px; border: 2px solid #0284c7; color: #081528; }
-    .signatures { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px dashed #999; }
-    .btn-print { background: #0284c7; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 6px; margin-bottom: 15px; font-weight: 600; }
+    .signatures { display: flex; justify-content: space-between; margin-top: 45px; padding-top: 20px; border-top: 1px dashed #999; }
+    .print-actions { text-align: center; margin-bottom: 18px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .btn-print { background: #0284c7; color: white; border: none; padding: 10px 22px; font-size: 15px; cursor: pointer; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-print:hover { background: #0369a1; }
+    .btn-close { background: #475569; }
+    .btn-close:hover { background: #334155; }
+
+    @media screen and (max-width: 600px) {
+      body { padding: 12px 8px; }
+      .bill-box { padding: 14px 10px; border-width: 1.5px; border-radius: 6px; }
+      .top-header h1 { font-size: 20px; }
+      .meta-grid { grid-template-columns: 1fr; gap: 5px; }
+      .meta-grid .text-right { text-align: left; }
+      .totals-area { justify-content: stretch; }
+      .totals-table { width: 100%; }
+      .signatures { flex-direction: column; gap: 24px; text-align: center; }
+      .signatures > div { text-align: center !important; }
+      .print-actions { width: 100%; }
+      .btn-print { width: 100%; justify-content: center; }
+    }
+
     @media print {
       .noprint { display: none !important; }
-      body { padding: 0; }
-      .bill-box { border: 1px solid #000; box-shadow: none; }
+      body { padding: 0; background: #ffffff; }
+      .bill-box { border: 1px solid #000; box-shadow: none; max-width: none; width: 100%; }
+      table { min-width: 0; }
     }
   </style>
 </head>
 <body>
-  <div style="text-align: center;" class="noprint">
+  <div class="print-actions noprint">
     <button class="btn-print" onclick="window.print()">🖨️ પ્રિન્ટ કરો (Print)</button>
-    <button class="btn-print" style="background:#555;" onclick="window.close()">બંધ કરો (Close)</button>
+    <button class="btn-print btn-close" onclick="window.close()">✕ બંધ કરો (Close)</button>
   </div>
 
   <div class="bill-box">
@@ -57,6 +80,7 @@
       <div class="text-right"><b>પ્લોટ નંબર:</b> {{ bill.plot_no|default:"—" }}</div>
     </div>
 
+    <div class="tablewrap-print">
     <table>
       <thead>
         <tr>
@@ -94,6 +118,7 @@
         </tr>
       </tfoot>
     </table>
+    </div>
 
     <div class="totals-area">
       <table class="totals-table">

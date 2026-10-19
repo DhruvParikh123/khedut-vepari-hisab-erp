@@ -905,15 +905,9 @@ function applyTheme(theme, showToast = true) {
   const label = isDark ? 'Light' : 'Dark';
   const title = isDark ? 'લાઈટ મોડ પર સ્વિચ કરો (Switch to Light Mode)' : 'ડાર્ક મોડ પર સ્વિચ કરો (Switch to Dark Mode)';
 
-  const themeIcon = document.getElementById('themeIcon');
-  const themeLabel = document.getElementById('themeLabel');
-  const themeBtn = document.getElementById('themeToggleBtn');
-  const sidebarThemeIcon = document.getElementById('sidebarThemeIcon');
-  const sidebarThemeBtn = document.querySelector('.sidebar-theme-btn');
-
-  if (themeIcon) themeIcon.textContent = icon;
-  if (themeLabel) themeLabel.textContent = label;
-  if (themeBtn) themeBtn.title = title;
+  document.querySelectorAll('.theme-icon, #themeIcon').forEach(el => el.textContent = icon);
+  document.querySelectorAll('.theme-label, #themeLabel').forEach(el => el.textContent = label);
+  document.querySelectorAll('.theme-toggle-btn, #themeToggleBtn').forEach(el => el.title = title);
   if (sidebarThemeIcon) sidebarThemeIcon.textContent = icon;
   if (sidebarThemeBtn) sidebarThemeBtn.title = title;
 
